@@ -1,5 +1,5 @@
 // Daily Upkeep offline cache. Bump VERSION when you change any file.
-const VERSION = "upkeep-v8";
+const VERSION = "upkeep-v9";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -15,9 +15,9 @@ self.addEventListener("fetch", e => {
   const isFont = /(^|\.)fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
   // Sync requests (and anything else from other sites) always go straight to the network
   if (url.origin !== self.location.origin && !isFont) return;
-  // Pages: try the network for updates, fall back to the cached copy offline
+  // Pages: always check the network for a newer version (skipping the browser's 10-minute cache), fall back to the saved copy offline
   if (req.mode === "navigate") {
-    e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put("index.html", copy)); return r; })
+    e.respondWith(fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put("index.html", copy)); return r; })
       .catch(() => caches.match("index.html")));
     return;
   }
