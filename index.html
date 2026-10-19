@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Daily Upkeep</title>
+<meta name="theme-color" content="#f3f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12171d" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Self-care, exercise and work tracker with streaks and editable task lists.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}html{-webkit-text-size-adjust:100%}body{margin:0;-webkit-tap-highlight-color:transparent}
+/* Layout: phone-first single column. Home = bar tracker + three doors (Upkeep, Exercise, Work). Each door opens its own screen with a back button; Upkeep and Work have an Edit mode. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#1d2733; --muted:#5f6b78; --line:#dde3ea;
+  --accent:#e2a028; --accent-ink:#3a2700; --done:#2f7d6b; --done-soft:#d9eee8;
+  --exercise:#3d6fb6; --exercise-soft:#dfe8f6; --work:#7a4f9e; --work-soft:#ece3f4; --danger:#c0392b;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1a2129; --ink:#e7ecf1; --muted:#97a3b0; --line:#2b3540;
+  --accent:#f0b546; --accent-ink:#2a1c00; --done:#5cc1a8; --done-soft:#1d3b35;
+  --exercise:#7ea6e6; --exercise-soft:#1e2c42; --work:#b893dc; --work-soft:#2e2440; --danger:#f07a6c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1a2129; --ink:#e7ecf1; --muted:#97a3b0; --line:#2b3540;
+  --accent:#f0b546; --accent-ink:#2a1c00; --done:#5cc1a8; --done-soft:#1d3b35;
+  --exercise:#7ea6e6; --exercise-soft:#1e2c42; --work:#b893dc; --work-soft:#2e2440; --danger:#f07a6c; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+.wrap{max-width:560px;margin:0 auto;padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(48px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen{display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:1.9rem;font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:700}
+.label{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+button{font:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Home */
+.hello{display:flex;flex-direction:column;gap:4px}
+.hello p{margin:0;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar-row{display:flex;flex-direction:column;gap:6px}
+.bar-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.bar-head b{font-weight:600}
+.bar-head span{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+.track{height:12px;border-radius:999px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;border-radius:999px;background:var(--done);transition:width .4s ease}
+.track.weekly i{background:var(--accent)}
+.track.ex i{background:var(--exercise)}
+.track.work i{background:var(--work)}
+.week{display:flex;flex-direction:column;gap:12px}
+.week-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.week-head span{font-size:.85rem;color:var(--muted)}
+.chart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:150px}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;min-width:0}
+.col .stack{flex:1;width:100%;max-width:40px;display:flex;align-items:flex-end;background:var(--bg);border-radius:8px;overflow:hidden}
+.col .fill{width:100%;background:color-mix(in srgb,var(--done) 45%,var(--line));border-radius:8px 8px 0 0;transition:height .4s ease}
+.col.good .fill{background:var(--done)}
+.col.today .stack{outline:2px solid var(--accent);outline-offset:2px}
+.col .day{font-size:.75rem;color:var(--muted);font-weight:600}
+.col .dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--line)}
+.col .dot.on{background:var(--exercise);border-color:var(--exercise)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.door{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;border:0;border-radius:18px;padding:18px 16px;cursor:pointer;min-height:150px;transition:transform .12s;color:#fff}
+.door:active{transform:scale(.98)}
+.door:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.door svg{width:34px;height:34px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.door strong{font-family:var(--display);font-size:1.35rem}
+.door small{font-size:.85rem;opacity:.85}
+.door.upkeep{background:var(--done)}
+.door.exercise{background:var(--exercise)}
+.door.work{background:var(--work);grid-column:1/-1;flex-direction:row;align-items:center;min-height:0;gap:14px}
+.door.work .dtxt{display:flex;flex-direction:column;gap:2px;min-width:0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .door{color:#0d1318}}
+:root[data-theme="dark"] .door{color:#0d1318}
+
+/* Screen header */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.back,.edit-btn{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:10px;height:40px;padding:0 14px;font-weight:600;cursor:pointer}
+.edit-btn.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* Upkeep / Work task lists */
+.daynav{display:flex;align-items:center;gap:8px}
+.daynav button{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:10px;width:40px;height:40px;font-size:1.1rem;cursor:pointer}
+.daynav button:disabled{opacity:.35;cursor:default}
+.daynav .date{flex:1;min-width:0}
+.daynav .date strong{display:block;font-family:var(--display);font-size:1.25rem}
+.today-btn{width:auto!important;padding:0 12px;font-size:.85rem!important}
+.summary{display:flex;align-items:center;gap:18px}
+.ring{width:84px;height:84px;flex:none}
+.ring circle{fill:none;stroke-width:9}
+.ring .rtrack{stroke:var(--line)}
+.ring .rfill{stroke:var(--done);stroke-linecap:round;transition:stroke-dashoffset .4s ease}
+.ring.work .rfill{stroke:var(--work)}
+.ring text{fill:var(--ink);font-family:var(--display);font-weight:700;font-size:22px}
+.summary p{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+.streak{font-family:var(--display);font-size:1.05rem;font-weight:700}
+.group{display:flex;flex-direction:column;gap:8px}
+.group-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.link-btn{background:none;border:0;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;padding:4px 0;text-decoration:underline}
+.tasks{display:flex;flex-direction:column;gap:8px;list-style:none;margin:0;padding:0}
+.task{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;user-select:none;transition:background .15s}
+.task:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.box{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);flex:none;display:grid;place-items:center;transition:all .15s}
+.box svg{width:16px;height:16px;stroke:var(--surface);stroke-width:3;fill:none;opacity:0}
+.task.done{background:var(--done-soft);border-color:transparent}
+.task.done .box{background:var(--done);border-color:var(--done)}
+.task.done .box svg{opacity:1}
+.work-list .task.done{background:var(--work-soft)}
+.work-list .task.done .box{background:var(--work);border-color:var(--work)}
+.todo-list .task.done .name{text-decoration:line-through;color:var(--muted)}
+.task .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+.task .name{font-weight:600}
+.task .hint{font-size:.85rem;color:var(--muted)}
+.task .area{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.chip{font-size:.78rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.chip.hot{color:var(--accent-ink);background:var(--accent);padding:2px 8px;border-radius:999px}
+.empty{color:var(--muted);font-size:.92rem;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:14px;margin:0}
+.tip{font-size:.88rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:12px;margin:0}
+.quick{display:flex;gap:8px}
+.quick input{flex:1;min-width:0}
+.field{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit;font-size:16px;width:100%}
+.field::placeholder{color:var(--muted)}
+.btn-solid{border:0;border-radius:10px;padding:0 16px;font-weight:700;cursor:pointer;background:var(--work);color:var(--surface)}
+
+/* Edit mode */
+.edit-row{display:flex;gap:8px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px}
+.edit-fields{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.edit-fields .field{padding:8px 10px}
+.edit-fields .e-name{font-weight:600}
+.edit-fields .row2{display:flex;gap:6px}
+.edit-fields .row2 .e-area{flex:0 0 34%}
+.edit-actions{display:flex;flex-direction:column;gap:4px}
+.icon-btn{width:36px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font-size:1rem;line-height:1}
+.icon-btn:disabled{opacity:.3;cursor:default}
+.icon-btn.del{color:var(--danger)}
+.icon-btn.del.armed{background:var(--danger);color:var(--surface);border-color:var(--danger);width:auto;padding:0 8px;font-size:.78rem;font-weight:700}
+.add-btn{border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:12px;padding:12px;font-weight:600;cursor:pointer;text-align:center}
+.edit-note{font-size:.85rem;color:var(--muted);margin:0}
+
+/* Exercise */
+.log{display:flex;align-items:center;gap:14px}
+.log .txt{flex:1;min-width:0}
+.log .txt p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.log-btn{border:2px solid var(--exercise);background:transparent;color:var(--exercise);border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.log-btn.on{background:var(--exercise);color:var(--surface)}
+.lib-intro{margin:0;color:var(--muted);font-size:.92rem}
+.lib{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.lib summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;cursor:pointer;font-weight:600;list-style:none}
+.lib summary::-webkit-details-marker{display:none}
+.lib summary::after{content:"+";font-family:var(--display);font-size:1.3rem;color:var(--muted);line-height:1}
+.lib[open] summary::after{content:"–"}
+.lib summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.lib summary span:first-child{flex:1;min-width:0}
+.lib .count{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.lib ul{list-style:none;margin:0;padding:0 14px 8px;display:flex;flex-direction:column}
+.lib li{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-top:1px solid var(--line)}
+.lib li b{font-weight:600}
+.lib li span{font-size:.88rem;color:var(--muted)}
+
+.backup{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.backup button,.backup label{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:.88rem;cursor:pointer}
+.backup label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.backup input{position:absolute;opacity:0;width:1px;height:1px}
+#installBtn{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:600}
+.status{font-size:.8rem;color:var(--muted);text-align:center}
+
+/* Workout planner */
+.today-card{display:flex;align-items:center;gap:16px;width:100%;text-align:left;border:0;border-radius:18px;padding:18px 16px;background:var(--exercise);color:#fff;cursor:pointer;transition:transform .12s}
+.today-card:active{transform:scale(.99)}
+.today-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.tc-letter{width:58px;height:58px;flex:none;border-radius:14px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.9rem;background:rgba(255,255,255,.18)}
+.tc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tc-txt .label{color:inherit;opacity:.8}
+.tc-txt strong{font-family:var(--display);font-size:1.35rem}
+.tc-txt small{font-size:.88rem;opacity:.9}
+.tc-go{font-size:2rem;line-height:1;opacity:.8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .today-card{color:#0d1318}:root:not([data-theme="light"]) .tc-letter{background:rgba(0,0,0,.12)}}
+:root[data-theme="dark"] .today-card{color:#0d1318}
+.split{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.split button{flex:1 0 auto;min-width:48px;display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:8px 6px;cursor:pointer}
+.split button b{font-family:var(--display);font-size:1.1rem}
+.split button small{font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.split button.sel{background:var(--exercise);border-color:var(--exercise);color:var(--surface)}
+.split button.sel small{color:inherit;opacity:.85}
+.split button.today{box-shadow:inset 0 -3px 0 var(--accent)}
+.wo-sub{margin:4px 0 0;color:var(--muted)}
+.meter{display:flex;flex-direction:column;gap:10px}
+.meter-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.meter-head span{font-family:var(--display);font-weight:700;font-size:1.1rem}
+.meter-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:end;height:56px}
+.meter-bar button{border:0;border-radius:8px;background:var(--line);cursor:pointer;padding:0;transition:background .15s}
+.meter-bar button:nth-child(1){height:30%}.meter-bar button:nth-child(2){height:47%}.meter-bar button:nth-child(3){height:64%}.meter-bar button:nth-child(4){height:82%}.meter-bar button:nth-child(5){height:100%}
+.meter-ends{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);font-weight:600}
+.meter p{margin:0;color:var(--muted);font-size:.9rem}
+.wo-list .task .name{font-weight:600}
+.wo-list .amt{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--exercise)}
+.wo-list .task.done{background:var(--exercise-soft)}
+.wo-list .task.done .box{background:var(--exercise);border-color:var(--exercise)}
+.group-head p{margin:0}
+.log-btn.big{width:100%;padding:16px;font-size:1.05rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HOME -->
+  <main class="screen" id="home">
+    <div class="hello">
+      <div class="label">Daily Upkeep</div>
+      <h1 id="greeting">Good morning</h1>
+      <p id="homeDate"></p>
+    </div>
+
+    <section class="card bars" aria-label="Progress">
+      <div class="bar-row">
+        <div class="bar-head"><b>Upkeep today</b><span id="bToday"></span></div>
+        <div class="track"><i id="fToday" style="width:0"></i></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-head"><b>Weekly tasks</b><span id="bWeek"></span></div>
+        <div class="track weekly"><i id="fWeek" style="width:0"></i></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-head"><b>Workouts this week</b><span id="bEx"></span></div>
+        <div class="track ex"><i id="fEx" style="width:0"></i></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-head"><b>Work today</b><span id="bWork"></span></div>
+        <div class="track work"><i id="fWork" style="width:0"></i></div>
+      </div>
+    </section>
+
+    <section class="doors">
+      <button class="door upkeep" id="goUpkeep">
+        <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8.5 9.5l2 2 4-4M8.5 16h7"/></svg>
+        <strong>Upkeep</strong>
+        <small id="doorUpkeep">Daily and weekly tasks</small>
+      </button>
+      <button class="door exercise" id="goExercise">
+        <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>
+        <strong>Exercise</strong>
+        <small id="doorExercise">No equipment needed</small>
+      </button>
+      <button class="door work" id="goWork">
+        <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 13h18"/></svg>
+        <span class="dtxt"><strong>Work</strong><small id="doorWork">Your work tasks and to-dos</small></span>
+      </button>
+    </section>
+
+    <section class="card week" aria-label="Last 7 days">
+      <div class="week-head"><h2>Last 7 days</h2><span id="goodCount"></span></div>
+      <div class="chart" id="chart"></div>
+      <div class="legend">
+        <span><i style="background:var(--done)"></i><span id="legendGood">Good day</span></span>
+        <span><i style="background:color-mix(in srgb,var(--done) 45%,var(--line))"></i>Some done</span>
+        <span><i style="background:var(--exercise);border-radius:50%"></i>Workout</span>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="backup">
+        <button id="installBtn" hidden>Install app</button>
+        <button id="exportBtn">Save backup</button>
+        <label>Load backup<input type="file" id="importFile" accept="application/json,.json"></label>
+      </div>
+      <div class="status" id="status">Saved on this device. Works offline.</div>
+    </section>
+  </main>
+
+  <!-- UPKEEP -->
+  <main class="screen" id="upkeep" hidden>
+    <div class="topbar"><button class="back" data-back>‹ Home</button><button class="edit-btn" data-edit="upkeep">Edit</button></div>
+    <div id="upkeepView" class="screen">
+      <div class="daynav">
+        <button id="prev" aria-label="Previous day">‹</button>
+        <div class="date"><span class="label" id="dayLabel">Today</span><strong id="dateText"></strong></div>
+        <button id="next" aria-label="Next day">›</button>
+        <button id="goToday" class="today-btn">Today</button>
+      </div>
+      <div class="card summary">
+        <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="rtrack" cx="50" cy="50" r="40"/>
+          <circle class="rfill" id="ringFill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          <text id="ringText" x="50" y="58" text-anchor="middle">0/0</text>
+        </svg>
+        <div><div class="streak" id="streakText"></div><p id="summaryText"></p></div>
+      </div>
+      <section class="group"><h2>Every day</h2><ul class="tasks" id="daily"></ul></section>
+      <section class="group"><h2 id="weekTitle">This week</h2><ul class="tasks" id="weekly"></ul></section>
+      <p class="tip">Missed a day? That's fine. Try not to miss two in a row. Use the arrows to fill in a day you forgot to log.</p>
+    </div>
+    <div id="upkeepEdit" class="screen" hidden>
+      <h1>Edit Upkeep</h1>
+      <p class="edit-note">Changes save as you type. Removing a task keeps your past days, it just stops counting it.</p>
+      <section class="group"><h2>Every day</h2><ul class="tasks" id="edDaily"></ul></section>
+      <section class="group"><h2>Every week</h2><ul class="tasks" id="edWeekly"></ul></section>
+    </div>
+  </main>
+
+  <!-- EXERCISE -->
+  <main class="screen" id="exercise" hidden>
+    <div class="topbar"><button class="back" data-back>‹ Home</button></div>
+    <h1>Exercise</h1>
+    <button class="today-card" id="goWorkout">
+      <span class="tc-letter" id="tcLetter">A</span>
+      <span class="tc-txt"><span class="label">Today's workout</span><strong id="tcTitle">Push</strong><small id="tcMeta"></small></span>
+      <span class="tc-go" aria-hidden="true">›</span>
+    </button>
+    <p class="lib-intro" id="exWeek"></p>
+    <section class="group">
+      <h2>Library</h2>
+      <p class="lib-intro">Everything here works at home with no equipment. Open a group to see the moves.</p>
+      <div class="group" id="library"></div>
+    </section>
+  </main>
+
+  <!-- WORKOUT -->
+  <main class="screen" id="workout" hidden>
+    <div class="topbar"><button class="back" data-back>‹ Exercise</button></div>
+    <div class="split" id="split" aria-label="Choose a day"></div>
+    <div><h1 id="woTitle"></h1><p class="wo-sub" id="woSub"></p></div>
+    <section class="card meter" aria-label="Difficulty">
+      <div class="meter-head"><b>Difficulty</b><span id="lvlName"></span></div>
+      <div class="meter-bar" id="meter"></div>
+      <div class="meter-ends"><span>Easier</span><span>Harder</span></div>
+      <p id="lvlDesc"></p>
+    </section>
+    <section class="group"><h2>Warm-up</h2><ul class="tasks wo-list" id="woWarm"></ul></section>
+    <section class="group"><div class="group-head"><h2 id="woMainTitle">Workout</h2></div><p class="lib-intro" id="woHow"></p><ul class="tasks wo-list" id="woMain"></ul></section>
+    <section class="group"><h2>Cool-down</h2><ul class="tasks wo-list" id="woCool"></ul></section>
+    <button class="log-btn big" id="logBtn" aria-pressed="false">Mark workout done</button>
+    <p class="tip">Tap each move as you finish it. If the last reps feel easy, go up a level next time. If your form breaks down, go down one.</p>
+  </main>
+
+  <!-- WORK -->
+  <main class="screen" id="work" hidden>
+    <div class="topbar"><button class="back" data-back>‹ Home</button><button class="edit-btn" data-edit="work">Edit</button></div>
+    <div id="workView" class="screen">
+      <h1>Work</h1>
+      <div class="card summary">
+        <svg class="ring work" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="rtrack" cx="50" cy="50" r="40"/>
+          <circle class="rfill" id="wRingFill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          <text id="wRingText" x="50" y="58" text-anchor="middle">0/0</text>
+        </svg>
+        <div><div class="streak" id="wTitle"></div><p id="wText"></p></div>
+      </div>
+      <section class="group work-list"><h2>Every workday</h2><ul class="tasks" id="workDaily"></ul></section>
+      <section class="group work-list todo-list">
+        <div class="group-head"><h2 id="todoTitle">To-do</h2><button class="link-btn" id="clearDone" hidden>Clear completed</button></div>
+        <form class="quick" id="quickAdd"><input class="field" id="quickInput" placeholder="Add a to-do" autocomplete="off" enterkeyhint="done"><button class="btn-solid" type="submit">Add</button></form>
+        <ul class="tasks" id="workTodo"></ul>
+      </section>
+    </div>
+    <div id="workEdit" class="screen" hidden>
+      <h1>Edit Work</h1>
+      <p class="edit-note">Workday tasks reset every day. To-dos stay until you tick them off. Changes save as you type.</p>
+      <section class="group"><h2>Every workday</h2><ul class="tasks" id="edWorkDaily"></ul></section>
+      <section class="group"><h2>To-do</h2><ul class="tasks" id="edWorkTodo"></ul></section>
+    </div>
+  </main>
+</div>
+
+<script>
+const DEFAULT_LISTS={
+  daily:[
+    {id:"sleep",area:"Sleep",name:"In bed by midnight",hint:"Screens off 30 min before"},
+    {id:"water",area:"Body",name:"Glass of water after waking",hint:"Before coffee"},
+    {id:"meal",area:"Food",name:"One proper meal",hint:"Something with vegetables"},
+    {id:"move",area:"Movement",name:"15-minute walk or stretch",hint:"Outside counts double"},
+    {id:"wash",area:"Body",name:"Shower and brush teeth",hint:"The basics"},
+    {id:"tidy",area:"Home",name:"10-minute tidy",hint:"Dishes, one surface, bin"},
+    {id:"mind",area:"Mind",name:"5 minutes without a screen",hint:"Breathe, write, look out the window"}],
+  weekly:[
+    {id:"groceries",area:"Food",name:"Grocery run",hint:"Stock easy healthy meals"},
+    {id:"laundry",area:"Home",name:"Laundry",hint:"Wash, dry, put away"},
+    {id:"clean",area:"Home",name:"Clean one room properly",hint:"Rotate rooms each week"},
+    {id:"people",area:"Social",name:"Call or see someone you like",hint:"Friend or family"},
+    {id:"fun",area:"Mind",name:"Something just for fun",hint:"No productivity allowed"},
+    {id:"plan",area:"Mind",name:"Plan next week",hint:"Sunday, 10 minutes"}],
+  workDaily:[
+    {id:"w-top3",name:"Pick today's top 3",hint:"Before opening email"},
+    {id:"w-inbox",name:"Go through email and messages",hint:"Reply, file, or turn into a to-do"},
+    {id:"w-backup",name:"Back up the project",hint:"Archive the PLC project before you leave"},
+    {id:"w-notes",name:"Write end-of-day notes",hint:"What's done, what's next"}],
+  workTodo:[
+    {id:"w-ex1",name:"Make this list yours: tap Edit",hint:"Example to-do, delete it anytime",done:false}]
+};
+const LIBRARY=[
+  ["Quick routines",[["10-minute circuit","Squats, push-ups, glute bridges, plank, jumping jacks. 40 s each, 20 s rest. Do the round twice."],["Every minute on the minute","At the start of each minute do 10 squats or 5 push-ups, rest for the rest of the minute. 10 minutes."],["Habit stacking","10 squats every time you make coffee. Plank while the kettle boils."]]],
+  ["Upper body: push",[["Push-ups","Start on knees or hands on a table or wall if full ones are too hard."],["Incline push-ups","Hands on a couch or bed. Easier."],["Decline push-ups","Feet on a couch or bed. Harder."],["Diamond push-ups","Hands close together. Triceps."],["Pike push-ups","Hips high. Shoulders."],["Chair or bed dips","Triceps."],["Plank shoulder taps","Shoulders and core."]]],
+  ["Upper body: pull",[["Door-frame rows","Grip both sides of a door frame, lean back, pull yourself in."],["Table rows","Lie under a sturdy table and pull your chest up to the edge."],["Towel rows","Loop a towel round a closed door's handles, lean back and pull."],["Superman pulls","Face-down, pull your arms back as if doing a pull-up."],["Reverse snow angels","Face-down, sweep arms from hips to overhead."]]],
+  ["Legs",[["Squats","Also sumo (wide stance) and pause squats."],["Lunges","Forward, reverse, side, walking."],["Bulgarian split squats","Back foot on a couch. Very effective."],["Step-ups","Onto a stair or sturdy chair."],["Glute bridges","Also single-leg bridges and hip thrusts against the couch."],["Wall sits","Thighs parallel to the floor, hold."],["Calf raises","On a stair edge for more range."],["Cossack squats","Deep side-to-side squat."],["Pistol squats","Hold a door frame for balance if needed."]]],
+  ["Core",[["Plank and side plank","Straight line from head to heels."],["Dead bugs","On your back, lower opposite arm and leg slowly."],["Bird dogs","On all fours, extend opposite arm and leg."],["Crunches","Also bicycle and reverse crunches."],["Leg raises and flutter kicks","Lower back pressed to the floor."],["Hollow body hold","Arms and legs off the floor, banana shape."],["Mountain climbers","Plank position, drive knees in fast."],["Russian twists","Seated, lean back, rotate side to side."],["Bear crawl hold","On all fours, knees an inch off the floor."]]],
+  ["Cardio",[["Jumping jacks","Classic warm-up."],["High knees and butt kicks","Running in place."],["Burpees","With or without the push-up."],["Jump squats and jump lunges","Land softly."],["Skater hops","Side to side, one leg at a time."],["Shadow boxing","Keep moving your feet."],["Stair climbing","If you have stairs."],["Dancing","A few songs genuinely counts."],["Quiet cardio","For late at night: marching in place, step jacks, squat to calf raise."]]],
+  ["Mobility and stretching",[["Cat-cow","On all fours, round then arch your back."],["Child's pose","Sit back on your heels, arms forward."],["Downward dog","Hips high, heels toward the floor."],["World's greatest stretch","Lunge with a twist toward the front leg."],["Hip flexor stretch","Kneeling lunge, squeeze the back glute."],["Hamstring stretch","Seated or standing, hinge at the hips."],["Pigeon pose","Front shin across, back leg long."],["Thoracic rotations","On all fours or side-lying, open the chest."],["Neck and shoulder rolls","Good after a day at a desk."]]],
+  ["Making it harder over time",[["Go slower","3 seconds on the way down."],["Add pauses","Hold at the hardest point for 1–2 s."],["Go single-sided","Single-leg or single-arm versions."],["Add reps","A couple more each week."]]]
+];
+const WORKOUT_GOAL=3;
+const check='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+let state={days:{},weeks:{},workouts:{},workDays:{},lists:clone(DEFAULT_LISTS),level:3};
+let viewDate=todayNoon();
+let editing=null;
+
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function uid(){return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function key(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");return `${y}-${m}-${dd}`}
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-day);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));const w=Math.ceil(((t-y0)/864e5+1)/7);return `${t.getUTCFullYear()}-W${String(w).padStart(2,"0")}`}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function todayNoon(){const t=new Date();t.setHours(12,0,0,0);return t}
+function monday(d){const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+const $=id=>document.getElementById(id);
+const L=()=>state.lists;
+const doneOn=k=>state.days[k]||[];
+// Count only tasks that are still on the list
+const dailyDone=k=>L().daily.filter(t=>doneOn(k).includes(t.id)).length;
+const weeklyDone=w=>L().weekly.filter(t=>(state.weeks[w]||[]).includes(t.id)).length;
+const workDone=k=>L().workDaily.filter(t=>(state.workDays[k]||[]).includes(t.id)).length;
+const goodN=()=>Math.max(1,Math.ceil(L().daily.length*5/7));
+
+function taskStreak(id){let d=todayNoon(),n=0;if(!doneOn(key(d)).includes(id))d=addDays(d,-1);while(doneOn(key(d)).includes(id)){n++;d=addDays(d,-1)}return n}
+function goodStreak(){if(!L().daily.length)return 0;let d=todayNoon(),n=0;if(dailyDone(key(d))<goodN())d=addDays(d,-1);while(dailyDone(key(d))>=goodN()){n++;d=addDays(d,-1)}return n}
+function bar(id,fill,a,b){$(id).textContent=`${a} / ${b}`;$(fill).style.width=(b?Math.min(a/b,1)*100:0)+"%"}
+
+/* ---------- Home ---------- */
+function renderHome(){
+  const now=new Date(), t=todayNoon(), tk=key(t), wk=isoWeek(t), nD=L().daily.length;
+  const h=now.getHours();
+  $("greeting").textContent=h<5?"Still up?":h<12?"Good morning":h<19?"Good afternoon":"Good evening";
+  $("homeDate").textContent=t.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  const mon=monday(t); let ex=0, good=0;
+  for(let i=0;i<7;i++)if(state.workouts[key(addDays(mon,i))])ex++;
+  const chart=$("chart"); chart.replaceChildren();
+  for(let i=6;i>=0;i--){
+    const d=addDays(t,-i), k=key(d), c=dailyDone(k), w=!!state.workouts[k];
+    if(nD&&c>=goodN())good++;
+    const col=document.createElement("div");
+    col.className="col"+(nD&&c>=goodN()?" good":"")+(k===tk?" today":"");
+    col.title=`${d.toLocaleDateString(undefined,{weekday:"long"})}: ${c}/${nD}${w?", workout":""}`;
+    col.innerHTML=`<div class="stack"><div class="fill" style="height:${nD?c/nD*100:0}%"></div></div><div class="dot${w?" on":""}"></div><div class="day">${d.toLocaleDateString(undefined,{weekday:"short"}).slice(0,2)}</div>`;
+    chart.appendChild(col);
+  }
+  const dc=dailyDone(tk), wd=L().workDaily.length, wdc=workDone(tk), open=L().workTodo.filter(x=>!x.done).length;
+  bar("bToday","fToday",dc,nD); bar("bWeek","fWeek",weeklyDone(wk),L().weekly.length);
+  bar("bEx","fEx",ex,WORKOUT_GOAL); bar("bWork","fWork",wdc,wd);
+  $("goodCount").textContent=`${good} good day${good===1?"":"s"}`;
+  $("legendGood").textContent=`Good day (${goodN()}+)`;
+  const left=nD-dc;
+  $("doorUpkeep").textContent=!nD?"Add your tasks":left===0?"All done today":`${left} task${left>1?"s":""} left today`;
+  $("doorExercise").textContent=state.workouts[tk]?"Done today":ex>=WORKOUT_GOAL?"Weekly goal reached":`${WORKOUT_GOAL-ex} to go this week`;
+  const wl=wd-wdc;
+  $("doorWork").textContent=[wd?(wl?`${wl} workday task${wl>1?"s":""} left`:"Workday tasks done"):"",`${open} to-do${open===1?"":"s"} open`].filter(Boolean).join(" · ");
+}
+
+/* ---------- Task rows ---------- */
+function taskEl(t,done,chip,showArea){
+  const li=document.createElement("li");
+  li.className="task"+(done?" done":"");li.tabIndex=0;li.setAttribute("role","checkbox");li.setAttribute("aria-checked",done);
+  li.innerHTML=`<span class="box">${check}</span><span class="txt">${showArea&&t.area?'<span class="area"></span>':""}<div class="name"></div>${t.hint?'<div class="hint"></div>':""}</span>${chip||""}`;
+  if(showArea&&t.area)li.querySelector(".area").textContent=t.area;
+  li.querySelector(".name").textContent=t.name||"Untitled task";
+  if(t.hint)li.querySelector(".hint").textContent=t.hint;
+  return li;
+}
+function bindToggle(li,fn){li.onclick=fn;li.onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();fn()}}}
+function emptyEl(text){const p=document.createElement("p");p.className="empty";p.textContent=text;return p}
+
+/* ---------- Upkeep ---------- */
+function renderUpkeep(){
+  const k=key(viewDate), isToday=k===key(todayNoon()), nD=L().daily.length;
+  const diff=Math.round((todayNoon()-viewDate)/864e5);
+  $("dayLabel").textContent=isToday?"Today":diff===1?"Yesterday":`${diff} days ago`;
+  $("dateText").textContent=viewDate.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  $("next").disabled=isToday; $("goToday").hidden=isToday;
+  const done=doneOn(k), count=dailyDone(k), g=goodN();
+  $("ringText").textContent=`${count}/${nD}`;
+  $("ringFill").setAttribute("stroke-dashoffset",251.3*(1-(nD?count/nD:0)));
+  const gs=goodStreak();
+  $("streakText").textContent=gs>0?`${gs} good day${gs>1?"s":""} in a row`:"Start your streak today";
+  $("summaryText").textContent=!nD?"No daily tasks yet. Tap Edit to add some.":count>=g?(count===nD?"Everything done. Nice work.":"That's a good day. Anything more is a bonus."):`${g-count} more for a good day (${g} of ${nD}).`;
+  const ul=$("daily");ul.replaceChildren();
+  if(!nD)ul.appendChild(emptyEl("No daily tasks. Tap Edit to add some."));
+  L().daily.forEach(t=>{
+    const s=taskStreak(t.id), chip=s>=2?`<span class="chip${s>=7?" hot":""}">${s} days</span>`:"";
+    const li=taskEl(t,done.includes(t.id),chip,true); bindToggle(li,()=>toggleIn(state.days,k,t.id)); ul.appendChild(li);
+  });
+  const wk=isoWeek(viewDate), wdone=state.weeks[wk]||[];
+  $("weekTitle").textContent=`${isoWeek(todayNoon())===wk?"This week":"Week "+wk.split("-W")[1]} · ${weeklyDone(wk)}/${L().weekly.length}`;
+  const wl=$("weekly");wl.replaceChildren();
+  if(!L().weekly.length)wl.appendChild(emptyEl("No weekly tasks. Tap Edit to add some."));
+  L().weekly.forEach(t=>{const li=taskEl(t,wdone.includes(t.id),"",true); bindToggle(li,()=>toggleIn(state.weeks,wk,t.id)); wl.appendChild(li)});
+}
+
+/* ---------- Work ---------- */
+function renderWork(){
+  const tk=key(todayNoon()), n=L().workDaily.length, c=workDone(tk), todos=L().workTodo, open=todos.filter(x=>!x.done).length;
+  $("wRingText").textContent=`${c}/${n}`;
+  $("wRingFill").setAttribute("stroke-dashoffset",251.3*(1-(n?c/n:0)));
+  $("wTitle").textContent=!n?"No workday tasks":c===n?"Workday tasks done":`${n-c} workday task${n-c>1?"s":""} left`;
+  $("wText").textContent=`${open} to-do${open===1?"":"s"} open${todos.length-open?`, ${todos.length-open} done`:""}.`;
+  const ul=$("workDaily");ul.replaceChildren();
+  if(!n)ul.appendChild(emptyEl("Nothing that repeats every day yet. Tap Edit to add some."));
+  const wdone=state.workDays[tk]||[];
+  L().workDaily.forEach(t=>{const li=taskEl(t,wdone.includes(t.id)); bindToggle(li,()=>toggleIn(state.workDays,tk,t.id)); ul.appendChild(li)});
+  $("todoTitle").textContent=`To-do · ${open}`;
+  $("clearDone").hidden=!todos.some(x=>x.done);
+  const tl=$("workTodo");tl.replaceChildren();
+  if(!todos.length)tl.appendChild(emptyEl("No to-dos. Add one above."));
+  [...todos.filter(x=>!x.done),...todos.filter(x=>x.done)].forEach(t=>{
+    const li=taskEl(t,!!t.done); bindToggle(li,()=>{t.done=!t.done;save();renderAll()}); tl.appendChild(li);
+  });
+}
+$("quickAdd").onsubmit=e=>{
+  e.preventDefault(); const v=$("quickInput").value.trim(); if(!v)return;
+  L().workTodo.push({id:uid(),name:v,hint:"",done:false}); $("quickInput").value=""; save(); renderAll(); $("quickInput").focus();
+};
+$("clearDone").onclick=()=>{L().workTodo=L().workTodo.filter(x=>!x.done);save();renderAll();setStatus("Completed to-dos cleared.")};
+
+/* ---------- Editor (shared by Upkeep and Work) ---------- */
+function renderEditor(ulId,listName,opts){
+  const ul=$(ulId), list=L()[listName]; ul.replaceChildren();
+  list.forEach((t,i)=>{
+    const li=document.createElement("li");li.className="edit-row";
+    const f=document.createElement("div");f.className="edit-fields";
+    const name=document.createElement("input");name.className="field e-name";name.value=t.name;name.placeholder="Task name";name.setAttribute("aria-label","Task name");
+    name.oninput=()=>{t.name=name.value;save()};
+    const row2=document.createElement("div");row2.className="row2";
+    if(opts.area){const a=document.createElement("input");a.className="field e-area";a.value=t.area||"";a.placeholder="Area";a.setAttribute("aria-label","Area");a.oninput=()=>{t.area=a.value;save()};row2.appendChild(a)}
+    const hint=document.createElement("input");hint.className="field";hint.value=t.hint||"";hint.placeholder="Note (optional)";hint.setAttribute("aria-label","Note");
+    hint.oninput=()=>{t.hint=hint.value;save()};row2.appendChild(hint);
+    f.append(name,row2);
+    const act=document.createElement("div");act.className="edit-actions";
+    const mk=(txt,label,cls)=>{const b=document.createElement("button");b.type="button";b.className="icon-btn"+(cls?" "+cls:"");b.textContent=txt;b.setAttribute("aria-label",label);return b};
+    const up=mk("↑","Move up"),down=mk("↓","Move down"),del=mk("✕","Delete","del");
+    up.disabled=i===0; down.disabled=i===list.length-1;
+    up.onclick=()=>{[list[i-1],list[i]]=[list[i],list[i-1]];save();renderEditor(ulId,listName,opts)};
+    down.onclick=()=>{[list[i+1],list[i]]=[list[i],list[i+1]];save();renderEditor(ulId,listName,opts)};
+    del.onclick=()=>{
+      if(!del.classList.contains("armed")){del.classList.add("armed");del.textContent="Delete";setTimeout(()=>{if(del.isConnected){del.classList.remove("armed");del.textContent="✕"}},3000);return}
+      list.splice(i,1);save();renderEditor(ulId,listName,opts);
+    };
+    act.append(up,down,del); li.append(f,act); ul.appendChild(li);
+  });
+  const addLi=document.createElement("li");
+  const add=document.createElement("button");add.type="button";add.className="add-btn";add.style.width="100%";add.textContent="+ Add task";
+  add.onclick=()=>{
+    const item={id:uid(),name:"",hint:""};if(opts.area)item.area="";if(listName==="workTodo")item.done=false;
+    list.push(item);save();renderEditor(ulId,listName,opts);
+    const inputs=$(ulId).querySelectorAll(".e-name");inputs[inputs.length-1].focus();
+  };
+  addLi.appendChild(add);ul.appendChild(addLi);
+}
+function setEditing(screen){
+  editing=screen;
+  document.querySelectorAll("[data-edit]").forEach(b=>{const on=b.dataset.edit===editing;b.classList.toggle("on",on);b.textContent=on?"Done":"Edit"});
+  $("upkeepView").hidden=editing==="upkeep"; $("upkeepEdit").hidden=editing!=="upkeep";
+  $("workView").hidden=editing==="work"; $("workEdit").hidden=editing!=="work";
+  if(editing==="upkeep"){renderEditor("edDaily","daily",{area:true});renderEditor("edWeekly","weekly",{area:true})}
+  if(editing==="work"){renderEditor("edWorkDaily","workDaily",{});renderEditor("edWorkTodo","workTodo",{})}
+  if(!editing){
+    // drop rows left without a name
+    ["daily","weekly","workDaily","workTodo"].forEach(n=>{L()[n]=L()[n].filter(t=>(t.name||"").trim())});
+    save();renderAll();
+  }
+}
+document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>setEditing(editing===b.dataset.edit?null:b.dataset.edit));
+
+/* ---------- Exercise ---------- */
+function buildLibrary(){
+  const lib=$("library");
+  LIBRARY.forEach(([title,items],i)=>{
+    const d=document.createElement("details");d.className="lib";if(i===0)d.open=true;
+    const s=document.createElement("summary");s.innerHTML=`<span></span><span class="count">${items.length}</span>`;s.firstChild.textContent=title;
+    const ul=document.createElement("ul");
+    items.forEach(([n,h])=>{const li=document.createElement("li");li.innerHTML="<b></b><span></span>";li.firstChild.textContent=n;li.lastChild.textContent=h;ul.appendChild(li)});
+    d.append(s,ul);lib.appendChild(d);
+  });
+}
+function renderExercise(){
+  const t=todayNoon(), tk=key(t), done=state.workouts[tk], letter=letterFor(t), P=SPLIT[letter], lv=level();
+  const mon=monday(t); let ex=0; for(let i=0;i<7;i++)if(state.workouts[key(addDays(mon,i))])ex++;
+  $("tcLetter").textContent=letter==="R"?"–":letter;
+  $("tcTitle").textContent=P.rest?"Rest day":`Day ${letter} · ${P.title}`;
+  $("tcMeta").textContent=done?"Done today ✓":P.rest?"Optional mobility · about "+planMinutes(letter,lv)+" min":`About ${planMinutes(letter,lv)} min · ${LEVELS[lv-1].name}`;
+  $("exWeek").textContent=`${ex} of ${WORKOUT_GOAL} workouts this week.`;
+}
+$("goWorkout").onclick=()=>{woLetter=letterFor(todayNoon());woChecked.clear();go("workout")};
+$("logBtn").onclick=()=>{const k=key(todayNoon());if(state.workouts[k])delete state.workouts[k];else state.workouts[k]=woLetter;save();renderAll()};
+
+/* ---------- ABCDE workout planner ---------- */
+// Each move: v = [easier, regular, harder] version, n = base amount, u = unit
+const LEVELS=[
+  {name:"Easy",  tier:0,sets:2,mult:.8,rest:75},
+  {name:"Light", tier:0,sets:3,mult:1, rest:60},
+  {name:"Normal",tier:1,sets:3,mult:1, rest:60},
+  {name:"Hard",  tier:2,sets:3,mult:1, rest:60},
+  {name:"Very hard",tier:2,sets:4,mult:1.2,rest:45}];
+const LEVEL_COLORS=["var(--done)","var(--done)","var(--accent)","var(--danger)","var(--danger)"];
+const TIER_TXT=["easier versions","regular versions","harder versions"];
+const SPLIT={
+  A:{title:"Push",focus:"Chest, shoulders and triceps",items:[
+    {v:["Incline push-ups","Push-ups","Decline push-ups"],n:10,u:"reps",tip:["Hands on the couch or a table","Hands on the floor","Feet up on the couch"]},
+    {v:["Plank shoulder taps","Pike push-ups","Feet-up pike push-ups"],n:10,u:"reps",tip:"Hips high for pikes, head between hands"},
+    {v:["Bench dips, knees bent","Chair dips","Chair dips, legs straight"],n:10,u:"reps",tip:"Use a sturdy chair or the bed edge"},
+    {v:["Knee diamond push-ups","Diamond push-ups","Slow diamond push-ups"],n:8,u:"reps",tip:"Hands close together, elbows tucked"},
+    {v:["Knee plank","Plank","Plank with shoulder taps"],n:30,u:"s",tip:"Straight line, squeeze your glutes"}],
+    cool:[["Child's pose","45 s"],["Door-frame chest stretch","30 s per side"]]},
+  B:{title:"Legs",focus:"Quads, glutes, hamstrings and calves",items:[
+    {v:["Chair squats","Squats","Jump squats"],n:15,u:"reps",tip:"Sit back, knees follow toes"},
+    {v:["Supported reverse lunges","Reverse lunges","Jump lunges"],n:10,u:"reps/leg",tip:"Hold a wall for support on easier levels"},
+    {v:["Glute bridges","Single-leg glute bridges","Single-leg hip thrusts on couch"],n:12,u:"reps",tip:"Pause at the top"},
+    {v:["Split squats","Bulgarian split squats","Slow Bulgarian split squats"],n:8,u:"reps/leg",tip:"Back foot on the couch for Bulgarian"},
+    {v:["High wall sit","Wall sit","Single-leg wall sit"],n:30,u:"s",tip:"Thighs parallel to the floor for regular"},
+    {v:["Calf raises","Stair-edge calf raises","Single-leg calf raises"],n:15,u:"reps",tip:"Slow on the way down"}],
+    cool:[["Hip flexor stretch","30 s per side"],["Hamstring stretch","30 s"],["Pigeon pose","30 s per side"]]},
+  C:{title:"Pull & back",focus:"Back, rear shoulders and biceps",items:[
+    {v:["Door-frame rows, upright","Table rows, knees bent","Table rows, legs straight"],n:10,u:"reps",tip:"Pull your chest to your hands"},
+    {v:["Towel rows","Slow towel rows","Single-arm towel rows"],n:10,u:"reps",tip:"Towel around closed door handles, lean back"},
+    {v:["Superman hold","Superman pulls","Superman pulls, 2 s squeeze"],n:10,u:"reps",tip:"Face-down, pull elbows to ribs"},
+    {v:["Reverse snow angels, small","Reverse snow angels","Slow reverse snow angels"],n:10,u:"reps",tip:"Thumbs up, arms off the floor"},
+    {v:["Bird dogs","Bird dogs with pause","Bird dog crunches"],n:10,u:"reps/side",tip:"Keep your hips level"}],
+    cool:[["Child's pose","45 s"],["Thoracic rotations","8 per side"]]},
+  D:{title:"Core",focus:"Abs, obliques and lower back",items:[
+    {v:["Dead bugs, legs bent","Dead bugs","Slow dead bugs"],n:10,u:"reps/side",tip:"Lower back stays pressed down"},
+    {v:["Knee plank","Plank","Three-point plank"],n:30,u:"s",tip:"Lift one foot for three-point"},
+    {v:["Knee side plank","Side plank","Side plank with hip lifts"],n:20,u:"s/side",tip:"Hips up, body in one line"},
+    {v:["Bent-knee leg raises","Leg raises","Leg raises with hold"],n:10,u:"reps",tip:"Slow down, no swinging"},
+    {v:["Russian twists, feet down","Russian twists","Russian twists, feet up"],n:20,u:"reps",tip:"Count both sides"},
+    {v:["Tuck hold","Hollow body hold","Hollow rocks"],n:20,u:"s",tip:"Arms and legs off the floor"}],
+    cool:[["Cat-cow","10 slow"],["Child's pose","45 s"]]},
+  E:{title:"Full body & cardio",focus:"Heart rate up, every muscle a little",circuit:true,items:[
+    {v:["Step jacks","Jumping jacks","Star jumps"],n:30,u:"s",tip:"Quiet option: step jacks"},
+    {v:["Step-back burpees","Burpees","Burpees with tuck jump"],n:8,u:"reps",tip:"Step back instead of jumping on easier levels"},
+    {v:["Slow mountain climbers","Mountain climbers","Cross-body mountain climbers"],n:30,u:"s",tip:"Plank position, knees in"},
+    {v:["Side steps","Skater hops","Skater hops with pause"],n:30,u:"s",tip:"Land softly"},
+    {v:["Incline push-ups","Push-ups","Push-up to shoulder tap"],n:10,u:"reps",tip:"Keep your core tight"},
+    {v:["Marching in place","High knees","High-knee sprints"],n:30,u:"s",tip:"Arms pumping"}],
+    cool:[["World's greatest stretch","5 per side"],["Hamstring stretch","30 s"]]},
+  R:{title:"Rest day",focus:"Recovery. This easy mobility routine is optional.",rest:true,items:[
+    {v:["Cat-cow"],n:10,u:"reps",tip:"Slow, with your breath"},
+    {v:["World's greatest stretch"],n:5,u:"reps/side",tip:"Lunge, then twist toward the front leg"},
+    {v:["Hip flexor stretch"],n:30,u:"s/side",tip:"Squeeze the back glute"},
+    {v:["Hamstring stretch"],n:30,u:"s",tip:"Hinge at the hips"},
+    {v:["Neck and shoulder rolls"],n:60,u:"s",tip:"Good after a day at a desk"},
+    {v:["Child's pose"],n:45,u:"s",tip:"Breathe into your back"}],
+    cool:[]}
+};
+const WARMUP=[["Arm circles","30 s"],["Leg swings","10 per leg"],["March or jumping jacks","1 min"],["Slow squats","10"]];
+const ORDER=["A","B","C","D","E","R"];
+const DAY_SHORT={A:"Mon",B:"Tue",C:"Wed",D:"Thu",E:"Fri",R:"Weekend"};
+const letterFor=d=>["R","A","B","C","D","E","R"][d.getDay()];
+let woLetter=letterFor(todayNoon()), woChecked=new Set();
+const level=()=>Math.min(5,Math.max(1,state.level||3));
+
+function amount(item,L){
+  const n=Math.max(1,Math.round(item.n*L.mult/(item.u.startsWith("s")&&item.n>=20?5:1))*(item.u.startsWith("s")&&item.n>=20?5:1));
+  const unit={"reps":"","reps/leg":" per leg","reps/side":" per side","s":" s","s/side":" s per side"}[item.u];
+  return {n,text:n+unit};
+}
+function planMinutes(letter,lv){
+  const P=SPLIT[letter],L=LEVELS[lv-1],sets=P.rest?1:L.sets;let sec=0;
+  P.items.forEach(it=>{const {n}=amount(it,P.rest?LEVELS[2]:L);const both=/leg|side/.test(it.u)?2:1;const work=it.u.startsWith("s")?n*both:n*3*both;sec+=sets*(work+(P.rest?10:L.rest))});
+  if(!P.rest)sec+=4*60+P.cool.length*60;
+  return Math.max(5,Math.round(sec/300)*5);
+}
+function woRow(name,amt,tip,id){
+  const li=document.createElement("li");const on=woChecked.has(id);
+  li.className="task"+(on?" done":"");li.tabIndex=0;li.setAttribute("role","checkbox");li.setAttribute("aria-checked",on);
+  li.innerHTML=`<span class="box">${check}</span><span class="txt"><div class="name"></div>${tip?'<div class="hint"></div>':""}</span><span class="amt"></span>`;
+  li.querySelector(".name").textContent=name;if(tip)li.querySelector(".hint").textContent=tip;li.querySelector(".amt").textContent=amt;
+  bindToggle(li,()=>{woChecked.has(id)?woChecked.delete(id):woChecked.add(id);renderWorkout()});
+  return li;
+}
+function renderWorkout(){
+  const P=SPLIT[woLetter], lv=level(), L=LEVELS[lv-1], today=letterFor(todayNoon());
+  const sp=$("split");sp.replaceChildren();
+  ORDER.forEach(x=>{const b=document.createElement("button");b.type="button";b.className=(x===woLetter?"sel":"")+(x===today?" today":"");
+    b.innerHTML=`<b>${x==="R"?"Rest":x}</b><small>${DAY_SHORT[x]}</small>`;b.setAttribute("aria-pressed",x===woLetter);
+    b.onclick=()=>{if(x!==woLetter){woLetter=x;woChecked.clear();renderWorkout()}};sp.appendChild(b)});
+  $("woTitle").textContent=P.rest?"Rest day":`Day ${woLetter} · ${P.title}`;
+  $("woSub").textContent=`${P.focus} About ${planMinutes(woLetter,lv)} min.`.replace(/([a-z])( About)/,"$1.$2");
+  const m=$("meter");m.replaceChildren();
+  LEVELS.forEach((x,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label",`Level ${i+1}: ${x.name}`);b.setAttribute("aria-pressed",i+1===lv);
+    if(i<lv)b.style.background=LEVEL_COLORS[lv-1];
+    b.onclick=()=>{state.level=i+1;save();renderWorkout();renderExercise()};m.appendChild(b)});
+  $("lvlName").textContent=`${lv} · ${L.name}`;$("lvlName").style.color=LEVEL_COLORS[lv-1];
+  $("lvlDesc").textContent=P.rest?"Rest days stay easy. The level only changes the other days.":`${L.sets} ${P.circuit?"rounds":"sets"}, ${TIER_TXT[L.tier]}, ${L.rest} s rest${L.mult>1?", extra reps":L.mult<1?", fewer reps":""}.`;
+  const warm=$("woWarm");warm.closest("section").hidden=!!P.rest;warm.replaceChildren();
+  WARMUP.forEach(([n,a],i)=>warm.appendChild(woRow(n,a,"","w"+i)));
+  $("woMainTitle").textContent=P.rest?"Mobility":P.circuit?`Circuit · ${L.sets} rounds`:"Workout";
+  $("woHow").textContent=P.rest?"Once through, slowly.":P.circuit?`Do each move once, back to back. Rest ${L.rest} s after each round.`:`Do ${L.sets} sets of each move, resting ${L.rest} s between sets.`;
+  const main=$("woMain");main.replaceChildren();
+  P.items.forEach((it,i)=>{const name=it.v[P.rest?0:Math.min(L.tier,it.v.length-1)];const a=amount(it,P.rest?LEVELS[2]:L);
+    const tip=Array.isArray(it.tip)?it.tip[Math.min(L.tier,it.tip.length-1)]:it.tip;
+    main.appendChild(woRow(name,P.rest||P.circuit?a.text:`${L.sets} × ${a.text}`,tip,"m"+i))});
+  const cool=$("woCool");cool.closest("section").hidden=!P.cool.length;cool.replaceChildren();
+  P.cool.forEach(([n,a],i)=>cool.appendChild(woRow(n,a,"","c"+i)));
+  const k=key(todayNoon()), done=state.workouts[k];
+  $("logBtn").className="log-btn big"+(done?" on":"");$("logBtn").setAttribute("aria-pressed",!!done);
+  $("logBtn").textContent=done?`Workout done today ✓${typeof done==="string"?` (${done==="R"?"mobility":"Day "+done})`:""}`:"Mark workout done";
+}
+
+/* ---------- State ---------- */
+function toggleIn(store,k,id){const a=store[k]||[];store[k]=a.includes(id)?a.filter(x=>x!==id):[...a,id];if(!store[k].length)delete store[k];save();renderAll()}
+function save(){try{localStorage.setItem("upkeep",JSON.stringify(state))}catch(e){setStatus("Couldn't save. Is storage full or blocked?")}}
+const setStatus=t=>$("status").textContent=t;
+function renderAll(){renderHome();renderUpkeep();renderWork();renderExercise();renderWorkout()}
+
+/* ---------- Navigation (works with the phone's back button) ---------- */
+const SCREENS=["home","upkeep","exercise","work","workout"];
+function show(name){
+  if(!SCREENS.includes(name))name="home";
+  if(editing)setEditing(null);
+  SCREENS.forEach(s=>$(s).hidden=s!==name);
+  if(name==="upkeep")viewDate=todayNoon();
+  renderAll(); window.scrollTo(0,0);
+}
+function go(name){history.pushState({s:name},"","#"+name);show(name)}
+window.addEventListener("popstate",()=>show(location.hash.slice(1)||"home"));
+$("goUpkeep").onclick=()=>go("upkeep");
+$("goExercise").onclick=()=>go("exercise");
+$("goWork").onclick=()=>go("work");
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>{if(history.state&&history.state.s)history.back();else{history.replaceState(null,"","#home");show("home")}});
+$("prev").onclick=()=>{viewDate=addDays(viewDate,-1);renderUpkeep()};
+$("next").onclick=()=>{if(key(viewDate)!==key(todayNoon())){viewDate=addDays(viewDate,1);renderUpkeep()}};
+$("goToday").onclick=()=>{viewDate=todayNoon();renderUpkeep()};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!editing)renderAll()});
+
+/* ---------- Backup ---------- */
+$("exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:"daily-upkeep",version:3,saved:new Date().toISOString(),...state},null,1)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`daily-upkeep-${key(todayNoon())}.json`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  setStatus("Backup saved to your downloads.");
+};
+$("importFile").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d||typeof d.days!=="object")throw 0;
+    const merge=(dst,src)=>{for(const [k,v] of Object.entries(src||{}))dst[k]=[...new Set([...(dst[k]||[]),...v])]};
+    merge(state.days,d.days); merge(state.weeks,d.weeks); merge(state.workDays,d.workDays);
+    Object.assign(state.workouts,d.workouts||{});if(d.level)state.level=d.level;
+    if(d.lists)state.lists=normalizeLists(d.lists); // the backup's task lists replace the current ones
+    save();renderAll();setStatus("Backup loaded and merged with what was here.");
+  }catch(err){setStatus("That file isn't a Daily Upkeep backup. Pick a file made with Save backup.")}
+  e.target.value="";
+};
+
+/* ---------- Install ---------- */
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").hidden=false});
+$("installBtn").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("installBtn").hidden=true};
+window.addEventListener("appinstalled",()=>{$("installBtn").hidden=true;setStatus("Installed. You can open it from your apps.")});
+
+/* ---------- Start ---------- */
+function normalizeLists(l){const out=clone(DEFAULT_LISTS);for(const n of Object.keys(out))if(Array.isArray(l&&l[n]))out[n]=l[n];return out}
+try{
+  const s=JSON.parse(localStorage.getItem("upkeep")||"null");
+  if(s&&s.days)state={days:s.days||{},weeks:s.weeks||{},workouts:s.workouts||{},workDays:s.workDays||{},lists:normalizeLists(s.lists),level:s.level||3};
+}catch(e){}
+buildLibrary();
+history.replaceState({s:null},"","#home");
+show("home");
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
