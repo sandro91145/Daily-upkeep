@@ -1,5 +1,5 @@
 // Daily Upkeep offline cache. Bump VERSION when you change any file.
-const VERSION = "upkeep-v7";
+const VERSION = "upkeep-v8";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
