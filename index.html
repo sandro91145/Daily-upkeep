@@ -1298,7 +1298,7 @@ async function syncNow(){
   if(!navigator.onLine){syncState="offline";renderStatus();return}
   syncing=true;syncState="syncing";renderStatus();
   try{
-    const r=await api(`/rest/v1/upkeep_state?select=data&user_id=eq.${encodeURIComponent(auth.user.id)}&_=${Date.now()}`);
+    const r=await api(`/rest/v1/upkeep_state?select=data&user_id=eq.${encodeURIComponent(auth.user.id)}`);
     if(!r.ok){const why=await failReason(r);throw new SyncError(r.status===404?tr("err_db")+" ("+why+")":why,"api")}
     const rows=await r.json(),remote=rows[0]&&rows[0].data||null;
     const rs=(remote&&remote.state)||{},rm=(remote&&remote.meta)||{};
