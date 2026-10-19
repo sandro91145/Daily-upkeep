@@ -1290,6 +1290,7 @@ async function api(path,opt={},retry=true){
   if(r.status===401&&retry&&auth){auth.expires_at=0;return api(path,opt,false)}
   return r;
 }
+async function failReason(r){let m="";try{const j=await r.json();m=[j.code,j.message||j.msg||j.error_description||j.error,j.hint].filter(Boolean).join(" · ")}catch(e){}return `HTTP ${r.status}${m?": "+m:""}`}
 function scheduleSync(){if(!syncReady()||!auth)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(),1500)}
 async function syncNow(){
   if(!syncReady()||!auth)return;
@@ -1298,8 +1299,7 @@ async function syncNow(){
   syncing=true;syncState="syncing";renderStatus();
   try{
     const r=await api(`/rest/v1/upkeep_state?select=data&user_id=eq.${encodeURIComponent(auth.user.id)}&_=${Date.now()}`);
-    if(r.status===404)throw new SyncError(tr("err_db"),"db");
-    if(!r.ok)throw new SyncError("HTTP "+r.status);
+    if(!r.ok){const why=await failReason(r);throw new SyncError(r.status===404?tr("err_db")+" ("+why+")":why,"api")}
     const rows=await r.json(),remote=rows[0]&&rows[0].data||null;
     const rs=(remote&&remote.state)||{},rm=(remote&&remote.meta)||{};
     if(editing){syncAgain=true;return}
@@ -1312,13 +1312,12 @@ async function syncNow(){
     if(localChanged)renderAll();
     if(remoteChanged){
       const p=await api("/rest/v1/upkeep_state",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({user_id:auth.user.id,data:{v:1,state:pick(state),meta:state.meta},updated_at:new Date().toISOString()})});
-      if(p.status===404)throw new SyncError(tr("err_db"),"db");
-      if(!p.ok)throw new SyncError("HTTP "+p.status);
+      if(!p.ok){const why=await failReason(p);throw new SyncError(p.status===404?tr("err_db")+" ("+why+")":why,"api")}
     }
     lastSyncAt=Date.now();lsSet("upkeep-lastsync",String(lastSyncAt));syncState="ok";
   }catch(e){
     if(e instanceof TypeError){syncState="offline"}
-    else{syncState=auth?"error":"idle";if(e.kind==="db")syncMsg(e.message,true)}
+    else{syncState=auth?"error":"idle";if(e.kind!=="auth")syncMsg(tr("err_generic",e.message),true)}
   }finally{
     syncing=false;renderStatus();renderSettings();
     if(syncAgain){syncAgain=false;scheduleSync()}
