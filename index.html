@@ -208,6 +208,66 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .wo-list .task.done .box{background:var(--exercise);border-color:var(--exercise)}
 .group-head p{margin:0}
 .log-btn.big{width:100%;padding:16px;font-size:1.05rem}
+
+/* Workout timer */
+.timer{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--ink);color:var(--surface);box-shadow:0 -6px 24px rgba(0,0,0,.18);padding-top:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.timer.work{background:var(--exercise)}
+.t-inner{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.t-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.t-info .label{color:inherit;opacity:.75}
+.t-row{display:flex;align-items:baseline;gap:10px;min-width:0}
+.t-row strong{font-family:var(--display);font-size:2.1rem;font-variant-numeric:tabular-nums;line-height:1}
+.t-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.t-info small{opacity:.85;font-size:.82rem}
+.timer button{border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:10px;height:44px;padding:0 12px;font-weight:700;cursor:pointer;flex:none}
+#workout.timing{padding-bottom:100px}
+.wo-list .task.active{border-color:var(--exercise);box-shadow:inset 0 0 0 1px var(--exercise)}
+.sets{display:flex;align-items:center;gap:4px;margin-top:6px;flex-wrap:wrap}
+.sets i{width:18px;height:6px;border-radius:3px;background:var(--line)}
+.sets i.on{background:var(--exercise)}
+.sub{font-size:.78rem;color:var(--muted);margin-top:4px;font-weight:600}
+.sets .sub{margin:0 0 0 6px}
+/* Difficulty feedback */
+.feel{display:flex;flex-direction:column;gap:10px}
+.feel-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.feel-btns button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:12px 6px;font-weight:600;cursor:pointer}
+.feel-btns button.sel{background:var(--exercise);border-color:var(--exercise);color:var(--surface)}
+.feel p{margin:0;color:var(--muted);font-size:.9rem}
+.btn-try{align-self:flex-start;border:0;border-radius:10px;padding:10px 14px;font-weight:700;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+/* Stats */
+.week-head .right{display:flex;align-items:baseline;gap:10px}
+.stack-card{display:flex;flex-direction:column;gap:12px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile b{font-family:var(--display);font-size:1.9rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile span{font-size:.82rem;color:var(--muted)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cal-head strong{font-family:var(--display);font-size:1.1rem;text-transform:capitalize}
+.cal-head button{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:10px;width:40px;height:40px;font-size:1.1rem;cursor:pointer}
+.cal-head button:disabled{opacity:.35;cursor:default}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-grid .wd{font-size:.7rem;color:var(--muted);text-align:center;font-weight:600;text-transform:capitalize}
+.cal-grid button{aspect-ratio:1;max-width:100%;border:0;border-radius:8px;background:var(--bg);color:var(--ink);font-size:.82rem;font-variant-numeric:tabular-nums;position:relative;cursor:pointer;padding:0}
+.cal-grid button[data-l="1"]{background:color-mix(in srgb,var(--done) 25%,var(--bg))}
+.cal-grid button[data-l="2"]{background:color-mix(in srgb,var(--done) 55%,var(--bg))}
+.cal-grid button[data-l="3"]{background:var(--done);color:var(--surface);font-weight:700}
+.cal-grid button.today{outline:2px solid var(--accent);outline-offset:1px}
+.cal-grid button.future{opacity:.35;cursor:default}
+.cal-grid button i{position:absolute;bottom:4px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--exercise)}
+.cal-grid button[data-l="3"] i{background:var(--surface)}
+.rates{display:flex;flex-direction:column;gap:12px}
+.rate{display:flex;flex-direction:column;gap:5px}
+.rate-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.92rem}
+.rate-head b{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.rate-head span{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.rate .track{height:8px}
+.rate.low .track i{background:var(--accent)}
+.tag{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:2px}
+.mini{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end;height:110px}
+.mini .col .fill{background:var(--exercise)}
+.mini .num{font-size:.75rem;font-weight:700;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:.82rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -259,7 +319,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     </section>
 
     <section class="card week" aria-label="Last 7 days">
-      <div class="week-head"><h2>Last 7 days</h2><span id="goodCount"></span></div>
+      <div class="week-head"><h2>Last 7 days</h2><span class="right"><span id="goodCount"></span><button class="link-btn" id="goStats">Stats ›</button></span></div>
       <div class="chart" id="chart"></div>
       <div class="legend">
         <span><i style="background:var(--done)"></i><span id="legendGood">Good day</span></span>
@@ -340,7 +400,50 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     <section class="group"><div class="group-head"><h2 id="woMainTitle">Workout</h2></div><p class="lib-intro" id="woHow"></p><ul class="tasks wo-list" id="woMain"></ul></section>
     <section class="group"><h2>Cool-down</h2><ul class="tasks wo-list" id="woCool"></ul></section>
     <button class="log-btn big" id="logBtn" aria-pressed="false">Mark workout done</button>
-    <p class="tip">Tap each move as you finish it. If the last reps feel easy, go up a level next time. If your form breaks down, go down one.</p>
+    <section class="card feel" id="feel" hidden aria-label="How did it feel">
+      <b>How did it feel?</b>
+      <div class="feel-btns"><button type="button" data-feel="easy">Too easy</button><button type="button" data-feel="right">Just right</button><button type="button" data-feel="hard">Too hard</button></div>
+      <p id="feelMsg"></p>
+      <button type="button" class="btn-try" id="feelTry" hidden></button>
+    </section>
+    <p class="tip">Tap a move after each set and the rest timer starts on its own. Timed moves like planks count down for you. Keep the volume up to hear the beeps.</p>
+    <div class="timer" id="timer" hidden role="timer" aria-live="polite">
+      <div class="t-inner">
+        <div class="t-info"><span class="label" id="tLabel">Rest</span><div class="t-row"><strong id="tTime">0:00</strong><span class="t-name" id="tName"></span></div><small id="tNext"></small></div>
+        <button type="button" id="tAdd">+15 s</button><button type="button" id="tSkip">Skip</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- STATS -->
+  <main class="screen" id="stats" hidden>
+    <div class="topbar"><button class="back" data-back>‹ Home</button></div>
+    <h1>Stats</h1>
+    <section class="tiles" id="tiles"></section>
+    <section class="card stack-card" aria-label="Calendar">
+      <div class="cal-head"><button type="button" id="calPrev" aria-label="Previous month">‹</button><strong id="calTitle"></strong><button type="button" id="calNext" aria-label="Next month">›</button></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="legend">
+        <span><i style="background:var(--done)"></i><span id="calGood">Good day</span></span>
+        <span><i style="background:color-mix(in srgb,var(--done) 40%,var(--bg))"></i>Some done</span>
+        <span><i style="background:var(--exercise);border-radius:50%"></i>Workout</span>
+      </div>
+      <p class="lib-intro">Tap a day to see or fill in its tasks.</p>
+    </section>
+    <section class="card stack-card">
+      <h2 id="ratesTitle">Daily tasks</h2>
+      <p class="lib-intro">Lowest first. The ones at the top are worth rethinking: make them smaller, move them, or swap them out.</p>
+      <div class="rates" id="rates"></div>
+    </section>
+    <section class="card stack-card">
+      <h2 id="wratesTitle">Weekly tasks</h2>
+      <div class="rates" id="wrates"></div>
+    </section>
+    <section class="card stack-card">
+      <h2>Workouts, last 30 days</h2>
+      <div class="mini" id="woMini"></div>
+      <div class="chips" id="woChips"></div>
+    </section>
   </main>
 
   <!-- WORK -->
@@ -410,7 +513,7 @@ const LIBRARY=[
 const WORKOUT_GOAL=3;
 const check='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
-let state={days:{},weeks:{},workouts:{},workDays:{},lists:clone(DEFAULT_LISTS),level:3};
+let state={days:{},weeks:{},workouts:{},workDays:{},lists:clone(DEFAULT_LISTS),level:3,feedback:{},todoDone:{}};
 let viewDate=todayNoon();
 let editing=null;
 
@@ -519,7 +622,7 @@ function renderWork(){
   const tl=$("workTodo");tl.replaceChildren();
   if(!todos.length)tl.appendChild(emptyEl("No to-dos. Add one above."));
   [...todos.filter(x=>!x.done),...todos.filter(x=>x.done)].forEach(t=>{
-    const li=taskEl(t,!!t.done); bindToggle(li,()=>{t.done=!t.done;save();renderAll()}); tl.appendChild(li);
+    const li=taskEl(t,!!t.done); bindToggle(li,()=>{t.done=!t.done;logTodo(t.id,t.done);save();renderAll()}); tl.appendChild(li);
   });
 }
 $("quickAdd").onsubmit=e=>{
@@ -596,7 +699,7 @@ function renderExercise(){
   $("tcMeta").textContent=done?"Done today ✓":P.rest?"Optional mobility · about "+planMinutes(letter,lv)+" min":`About ${planMinutes(letter,lv)} min · ${LEVELS[lv-1].name}`;
   $("exWeek").textContent=`${ex} of ${WORKOUT_GOAL} workouts this week.`;
 }
-$("goWorkout").onclick=()=>{woLetter=letterFor(todayNoon());woChecked.clear();go("workout")};
+$("goWorkout").onclick=()=>{woLetter=letterFor(todayNoon());resetWo();go("workout")};
 $("logBtn").onclick=()=>{const k=key(todayNoon());if(state.workouts[k])delete state.workouts[k];else state.workouts[k]=woLetter;save();renderAll()};
 
 /* ---------- ABCDE workout planner ---------- */
@@ -675,20 +778,90 @@ function planMinutes(letter,lv){
   if(!P.rest)sec+=4*60+P.cool.length*60;
   return Math.max(5,Math.round(sec/300)*5);
 }
-function woRow(name,amt,tip,id){
-  const li=document.createElement("li");const on=woChecked.has(id);
-  li.className="task"+(on?" done":"");li.tabIndex=0;li.setAttribute("role","checkbox");li.setAttribute("aria-checked",on);
-  li.innerHTML=`<span class="box">${check}</span><span class="txt"><div class="name"></div>${tip?'<div class="hint"></div>':""}</span><span class="amt"></span>`;
-  li.querySelector(".name").textContent=name;if(tip)li.querySelector(".hint").textContent=tip;li.querySelector(".amt").textContent=amt;
-  bindToggle(li,()=>{woChecked.has(id)?woChecked.delete(id):woChecked.add(id);renderWorkout()});
+/* ---------- Workout session (sets, rounds, timer) ---------- */
+let woProg={}, woRound=1, woRoundDone=new Set(), woCircuitDone=false;
+function resetWo(){woChecked.clear();woProg={};woRound=1;woRoundDone.clear();woCircuitDone=false;stopTimer()}
+const timed=it=>it.u.startsWith("s");
+const workSecs=(it,a)=>a.n*(it.u==="s/side"?2:1);
+const moveName=(it,L,P)=>it.v[P.rest?0:Math.min(L.tier,it.v.length-1)];
+
+let timer=null,tickH=null,actx=null,wake=null;
+function unlockAudio(){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume()}catch(e){}}
+function beep(freq,dur){try{if(!actx)return;const t0=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type="sine";o.frequency.value=freq;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.35,t0+.01);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g);g.connect(actx.destination);o.start(t0);o.stop(t0+dur+.05)}catch(e){}}
+async function keepAwake(on){try{if(on&&!wake&&navigator.wakeLock){wake=await navigator.wakeLock.request("screen");wake.addEventListener("release",()=>{wake=null})}else if(!on&&wake){const w=wake;wake=null;await w.release()}}catch(e){}}
+const fmt=x=>`${Math.floor(x/60)}:${String(x%60).padStart(2,"0")}`;
+function startTimer(o){unlockAudio();timer={...o,end:Date.now()+o.secs*1000,last:null};keepAwake(true);tick()}
+function stopTimer(){timer=null;clearTimeout(tickH);$("timer").hidden=true;$("workout").classList.remove("timing");keepAwake(false)}
+function tick(){
+  clearTimeout(tickH); if(!timer){stopTimer();return}
+  const left=Math.max(0,Math.ceil((timer.end-Date.now())/1000));
+  $("timer").hidden=false;$("workout").classList.add("timing");
+  $("timer").className="timer "+timer.kind;
+  $("tLabel").textContent=timer.kind==="rest"?"Rest":"Go";
+  $("tName").textContent=timer.label;$("tTime").textContent=fmt(left);$("tNext").textContent=timer.next||"";
+  if(left<=3&&left>0&&timer.last!==left){timer.last=left;beep(660,.09)}
+  if(left<=0){
+    const t=timer;timer=null;beep(990,.4);
+    try{navigator.vibrate&&navigator.vibrate([250,120,250])}catch(e){}
+    if(t.onDone)t.onDone();
+    if(!timer)stopTimer();
+    renderWorkout();return;
+  }
+  tickH=setTimeout(tick,250);
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&timer)tick()});
+$("tAdd").onclick=()=>{if(timer){timer.end+=15000;tick()}};
+$("tSkip").onclick=()=>{if(!timer)return;const t=timer;timer=null;if(t.kind==="work"&&t.onDone)t.onDone();if(!timer)stopTimer();renderWorkout()};
+
+function woRow(o){
+  const li=document.createElement("li");
+  li.className="task"+(o.done?" done":"")+(o.active?" active":"");li.tabIndex=0;li.setAttribute("role","button");
+  li.innerHTML=`<span class="box">${check}</span><span class="txt"><div class="name"></div>${o.tip?'<div class="hint"></div>':""}</span><span class="amt"></span>`;
+  li.querySelector(".name").textContent=o.name;if(o.tip)li.querySelector(".hint").textContent=o.tip;li.querySelector(".amt").textContent=o.amt;
+  const txt=li.querySelector(".txt");
+  if(o.sets){const sd=document.createElement("div");sd.className="sets";for(let i=0;i<o.sets;i++){const d=document.createElement("i");if(i<o.setsDone)d.className="on";sd.appendChild(d)}
+    if(o.sub){const sp=document.createElement("span");sp.className="sub";sp.textContent=o.sub;sd.appendChild(sp)}txt.appendChild(sd)}
+  else if(o.sub){const sp=document.createElement("div");sp.className="sub";sp.textContent=o.sub;txt.appendChild(sp)}
+  bindToggle(li,o.onTap);
   return li;
+}
+function toggleCheck(id){woChecked.has(id)?woChecked.delete(id):woChecked.add(id);renderWorkout()}
+function nextMove(P,L,i){for(let j=1;j<P.items.length;j++){const k=(i+j)%P.items.length;if((woProg["m"+k]||0)<L.sets)return moveName(P.items[k],L,P)}return null}
+function tapSet(id,i,it,name,a,L,P){
+  if(timer&&timer.row===id)return;
+  const sd=woProg[id]||0;
+  if(sd>=L.sets){woProg[id]=0;renderWorkout();return}
+  const finish=()=>{
+    woProg[id]=(woProg[id]||0)+1;
+    if(woProg[id]<L.sets)startTimer({label:name,secs:L.rest,kind:"rest",next:`Next: set ${woProg[id]+1} of ${L.sets}`});
+    else{const n=nextMove(P,L,i);if(n)startTimer({label:"Next move",secs:L.rest,kind:"rest",next:`Next: ${n}`});else stopTimer()}
+    renderWorkout();
+  };
+  if(timed(it))startTimer({label:name,secs:workSecs(it,a),kind:"work",row:id,next:it.u==="s/side"?`Set ${sd+1} of ${L.sets} · switch sides halfway`:`Set ${sd+1} of ${L.sets}`,onDone:finish});
+  else finish();
+  renderWorkout();
+}
+function tapCircuit(id,it,name,a,L,P){
+  if(woCircuitDone||(timer&&timer.row===id))return;
+  if(woRoundDone.has(id)){woRoundDone.delete(id);renderWorkout();return}
+  const mark=()=>{
+    woRoundDone.add(id);
+    if(woRoundDone.size>=P.items.length){
+      if(woRound<L.sets){woRound++;woRoundDone.clear();startTimer({label:"Round done",secs:L.rest,kind:"rest",next:`Next: round ${woRound} of ${L.sets}`})}
+      else{woCircuitDone=true;stopTimer()}
+    }
+    renderWorkout();
+  };
+  if(timed(it))startTimer({label:name,secs:workSecs(it,a),kind:"work",row:id,next:`Round ${woRound} of ${L.sets}`,onDone:mark});
+  else mark();
+  renderWorkout();
 }
 function renderWorkout(){
   const P=SPLIT[woLetter], lv=level(), L=LEVELS[lv-1], today=letterFor(todayNoon());
   const sp=$("split");sp.replaceChildren();
   ORDER.forEach(x=>{const b=document.createElement("button");b.type="button";b.className=(x===woLetter?"sel":"")+(x===today?" today":"");
     b.innerHTML=`<b>${x==="R"?"Rest":x}</b><small>${DAY_SHORT[x]}</small>`;b.setAttribute("aria-pressed",x===woLetter);
-    b.onclick=()=>{if(x!==woLetter){woLetter=x;woChecked.clear();renderWorkout()}};sp.appendChild(b)});
+    b.onclick=()=>{if(x!==woLetter){woLetter=x;resetWo();renderWorkout()}};sp.appendChild(b)});
   $("woTitle").textContent=P.rest?"Rest day":`Day ${woLetter} · ${P.title}`;
   $("woSub").textContent=`${P.focus} About ${planMinutes(woLetter,lv)} min.`.replace(/([a-z])( About)/,"$1.$2");
   const m=$("meter");m.replaceChildren();
@@ -698,28 +871,125 @@ function renderWorkout(){
   $("lvlName").textContent=`${lv} · ${L.name}`;$("lvlName").style.color=LEVEL_COLORS[lv-1];
   $("lvlDesc").textContent=P.rest?"Rest days stay easy. The level only changes the other days.":`${L.sets} ${P.circuit?"rounds":"sets"}, ${TIER_TXT[L.tier]}, ${L.rest} s rest${L.mult>1?", extra reps":L.mult<1?", fewer reps":""}.`;
   const warm=$("woWarm");warm.closest("section").hidden=!!P.rest;warm.replaceChildren();
-  WARMUP.forEach(([n,a],i)=>warm.appendChild(woRow(n,a,"","w"+i)));
-  $("woMainTitle").textContent=P.rest?"Mobility":P.circuit?`Circuit · ${L.sets} rounds`:"Workout";
-  $("woHow").textContent=P.rest?"Once through, slowly.":P.circuit?`Do each move once, back to back. Rest ${L.rest} s after each round.`:`Do ${L.sets} sets of each move, resting ${L.rest} s between sets.`;
+  WARMUP.forEach(([n,a],i)=>warm.appendChild(woRow({name:n,amt:a,done:woChecked.has("w"+i),onTap:()=>toggleCheck("w"+i)})));
+  $("woMainTitle").textContent=P.rest?"Mobility":P.circuit?(woCircuitDone?"Circuit · all rounds done":`Circuit · round ${woRound} of ${L.sets}`):"Workout";
+  $("woHow").textContent=P.rest?"Once through, slowly.":P.circuit?`Do each move once, back to back. Tap it when done; timed moves count down. Rest ${L.rest} s after each round.`:`${L.sets} sets of each move. Tap after every set and a ${L.rest} s rest timer starts.`;
   const main=$("woMain");main.replaceChildren();
-  P.items.forEach((it,i)=>{const name=it.v[P.rest?0:Math.min(L.tier,it.v.length-1)];const a=amount(it,P.rest?LEVELS[2]:L);
+  P.items.forEach((it,i)=>{
+    const id="m"+i,name=moveName(it,L,P),a=amount(it,P.rest?LEVELS[2]:L);
     const tip=Array.isArray(it.tip)?it.tip[Math.min(L.tier,it.tip.length-1)]:it.tip;
-    main.appendChild(woRow(name,P.rest||P.circuit?a.text:`${L.sets} × ${a.text}`,tip,"m"+i))});
+    const active=!!(timer&&timer.row===id);
+    if(P.rest){main.appendChild(woRow({name,amt:a.text,tip,done:woChecked.has(id),onTap:()=>toggleCheck(id)}));return}
+    if(P.circuit){const done=woCircuitDone||woRoundDone.has(id);
+      main.appendChild(woRow({name,amt:a.text,tip,done,active,sub:active?"Timer running":done?(woCircuitDone?"Done":"Done this round"):timed(it)?"Tap to start the timer":"Tap when done",onTap:()=>tapCircuit(id,it,name,a,L,P)}));return}
+    const sd=Math.min(woProg[id]||0,L.sets);
+    main.appendChild(woRow({name,amt:`${L.sets} × ${a.text}`,tip,done:sd>=L.sets,active,sets:L.sets,setsDone:sd,
+      sub:sd>=L.sets?"All sets done":active?`Set ${sd+1} running`:timed(it)?`Tap to start set ${sd+1}`:`Tap after set ${sd+1}`,onTap:()=>tapSet(id,i,it,name,a,L,P)}));
+  });
   const cool=$("woCool");cool.closest("section").hidden=!P.cool.length;cool.replaceChildren();
-  P.cool.forEach(([n,a],i)=>cool.appendChild(woRow(n,a,"","c"+i)));
+  P.cool.forEach(([n,a],i)=>cool.appendChild(woRow({name:n,amt:a,done:woChecked.has("c"+i),onTap:()=>toggleCheck("c"+i)})));
   const k=key(todayNoon()), done=state.workouts[k];
   $("logBtn").className="log-btn big"+(done?" on":"");$("logBtn").setAttribute("aria-pressed",!!done);
   $("logBtn").textContent=done?`Workout done today ✓${typeof done==="string"?` (${done==="R"?"mobility":"Day "+done})`:""}`:"Mark workout done";
+  renderFeel();
 }
+
+/* ---------- Difficulty feedback ---------- */
+function renderFeel(){
+  const k=key(todayNoon()),done=state.workouts[k],rec=state.feedback[k];
+  $("feel").hidden=!done||(typeof done==="string"&&done==="R"); if($("feel").hidden)return;
+  document.querySelectorAll("[data-feel]").forEach(b=>{const on=!!(rec&&rec.feel===b.dataset.feel);b.classList.toggle("sel",on);b.setAttribute("aria-pressed",on)});
+  $("feelMsg").textContent=rec?rec.msg:"Your answer sets the difficulty for your next workout.";
+  $("feelTry").hidden=!(rec&&rec.suggest); if(rec&&rec.suggest)$("feelTry").textContent=`Try level ${rec.suggest} · ${LEVELS[rec.suggest-1].name}`;
+}
+document.querySelectorAll("[data-feel]").forEach(b=>b.onclick=()=>{
+  const k=key(todayNoon()), prev=state.feedback[k], base=prev?prev.level:level(), feel=b.dataset.feel;
+  let next=base,msg,suggest=null;
+  if(feel==="easy"){next=Math.min(5,base+1);msg=next>base?`Next workout set to level ${next} · ${LEVELS[next-1].name}.`:"You're already at the top level. Try slowing every rep down to 3 seconds."}
+  else if(feel==="hard"){next=Math.max(1,base-1);msg=next<base?`Next workout set to level ${next} · ${LEVELS[next-1].name}. Good form beats more reps.`:"You're at the easiest level. Take longer rests if you need them."}
+  else{msg=`Staying at level ${base} · ${LEVELS[base-1].name}.`;
+    const recent=Object.keys(state.feedback).filter(d=>d<k).sort().slice(-2).map(d=>state.feedback[d]);
+    if(base<5&&recent.length===2&&recent.every(r=>r.feel==="right"&&r.level===base)){suggest=base+1;msg=`That's 3 "just right" in a row at level ${base}. Ready for a bit more?`}}
+  state.feedback[k]={letter:state.workouts[k],level:base,feel,msg,suggest};state.level=next;save();renderAll();
+});
+$("feelTry").onclick=()=>{const r=state.feedback[key(todayNoon())];if(!r||!r.suggest)return;state.level=r.suggest;r.msg=`Next workout set to level ${r.suggest} · ${LEVELS[r.suggest-1].name}.`;r.suggest=null;save();renderAll()};
+
+/* ---------- Stats ---------- */
+let calOffset=0;
+function parseKey(k){const [y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d,12)}
+function firstKey(){const ks=[...Object.keys(state.days),...Object.keys(state.workouts),...Object.keys(state.workDays)].sort();return ks[0]||key(todayNoon())}
+function logTodo(id,done){const k=key(todayNoon());for(const d of Object.keys(state.todoDone)){state.todoDone[d]=state.todoDone[d].filter(x=>x!==id);if(!state.todoDone[d].length)delete state.todoDone[d]}if(done)(state.todoDone[k]=state.todoDone[k]||[]).push(id)}
+function rateRow(name,done,total,low,tag){
+  const r=document.createElement("div");r.className="rate"+(low?" low":"");
+  const pct=total?Math.round(done/total*100):0;
+  r.innerHTML=`<div class="rate-head"><b></b><span>${pct}% · ${done}/${total}</span></div><div class="track"><i style="width:${pct}%"></i></div>`;
+  const b=r.querySelector("b");b.textContent=name;if(tag){const t=document.createElement("span");t.className="tag";t.textContent=tag;b.appendChild(t)}
+  return r;
+}
+function renderStats(){
+  const t=todayNoon(), nD=L().daily.length, g=goodN();
+  const first=parseKey(firstKey()), span=Math.round((t-first)/864e5)+1, N=Math.min(30,Math.max(1,span));
+  let best=0,run=0;for(let d=new Date(first);d<=t;d=addDays(d,1)){if(nD&&dailyDone(key(d))>=g){run++;if(run>best)best=run}else run=0}
+  let wo30=0,todo30=0;const feelC={easy:0,right:0,hard:0},letterC={A:0,B:0,C:0,D:0,E:0};
+  for(let i=0;i<30;i++){const k=key(addDays(t,-i)),w=state.workouts[k];if(w){wo30++;if(letterC[w]!==undefined)letterC[w]++}const f=state.feedback[k];if(f&&feelC[f.feel]!==undefined)feelC[f.feel]++;todo30+=(state.todoDone[k]||[]).length}
+  const tiles=[[goodStreak(),"Current streak (good days)"],[best,"Best streak"],[wo30,"Workouts, last 30 days"],[todo30,"To-dos done, last 30 days"]];
+  const tl=$("tiles");tl.replaceChildren();tiles.forEach(([v,l])=>{const d=document.createElement("div");d.className="tile";d.innerHTML=`<b>${v}</b><span></span>`;d.lastChild.textContent=l;tl.appendChild(d)});
+
+  // calendar
+  const month=new Date(t.getFullYear(),t.getMonth()+calOffset,1,12);
+  $("calTitle").textContent=month.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  $("calNext").disabled=calOffset>=0;
+  $("calGood").textContent=`Good day (${g}+)`;
+  const grid=$("calGrid");grid.replaceChildren();
+  const mon=monday(t);for(let i=0;i<7;i++){const w=document.createElement("div");w.className="wd";w.textContent=addDays(mon,i).toLocaleDateString(undefined,{weekday:"short"}).slice(0,2);grid.appendChild(w)}
+  for(let i=0;i<(month.getDay()+6)%7;i++)grid.appendChild(document.createElement("span"));
+  const dim=new Date(month.getFullYear(),month.getMonth()+1,0).getDate();
+  for(let d=1;d<=dim;d++){
+    const day=new Date(month.getFullYear(),month.getMonth(),d,12),k=key(day),c=dailyDone(k),future=day>t;
+    const b=document.createElement("button");b.type="button";b.textContent=d;
+    b.dataset.l=!nD||c===0?0:c>=g?3:c/nD>=.4?2:1;
+    if(k===key(t))b.classList.add("today");if(future){b.classList.add("future");b.disabled=true}
+    if(state.workouts[k]){const i=document.createElement("i");b.appendChild(i)}
+    b.setAttribute("aria-label",`${day.toLocaleDateString(undefined,{day:"numeric",month:"long"})}: ${c} of ${nD}${state.workouts[k]?", workout":""}`);
+    if(!future)b.onclick=()=>{go("upkeep");viewDate=day;renderUpkeep()};
+    grid.appendChild(b);
+  }
+
+  // daily task rates
+  $("ratesTitle").textContent=`Daily tasks, last ${N} day${N>1?"s":""}`;
+  const rates=$("rates");rates.replaceChildren();
+  const rows=L().daily.map(task=>{let c=0;for(let i=0;i<N;i++)if(doneOn(key(addDays(t,-i))).includes(task.id))c++;return {task,c}}).sort((x,y)=>x.c-y.c);
+  if(!rows.length)rates.appendChild(emptyEl("No daily tasks yet."));
+  rows.forEach((r,i)=>{const low=r.c/N<.5;rates.appendChild(rateRow(r.task.name||"Untitled task",r.c,N,low,i===0&&low&&N>=3?"Most skipped":""))});
+
+  // weekly task rates
+  const firstWeekMon=monday(first), W=Math.min(4,Math.max(1,Math.round((monday(t)-firstWeekMon)/(7*864e5))+1));
+  $("wratesTitle").textContent=`Weekly tasks, last ${W} week${W>1?"s":""}`;
+  const wr=$("wrates");wr.replaceChildren();
+  if(!L().weekly.length)wr.appendChild(emptyEl("No weekly tasks yet."));
+  L().weekly.map(task=>{let c=0;for(let i=0;i<W;i++)if((state.weeks[isoWeek(addDays(t,-7*i))]||[]).includes(task.id))c++;return {task,c}}).sort((x,y)=>x.c-y.c)
+    .forEach(r=>wr.appendChild(rateRow(r.task.name||"Untitled task",r.c,W,r.c/W<.5,"")));
+
+  // workouts
+  const mx=Math.max(1,...Object.values(letterC));const mini=$("woMini");mini.replaceChildren();
+  Object.entries(letterC).forEach(([x,c])=>{const col=document.createElement("div");col.className="col";
+    col.innerHTML=`<span class="num">${c}</span><div class="stack"><div class="fill" style="height:${c/mx*100}%"></div></div><div class="day">${x} · ${SPLIT[x].title.split(" ")[0]}</div>`;mini.appendChild(col)});
+  const ch=$("woChips");ch.replaceChildren();
+  [[`${wo30} workout${wo30===1?"":"s"}`],[`Too easy: ${feelC.easy}`],[`Just right: ${feelC.right}`],[`Too hard: ${feelC.hard}`],[`Current level: ${level()} · ${LEVELS[level()-1].name}`]]
+    .forEach(([x])=>{const sp=document.createElement("span");sp.textContent=x;ch.appendChild(sp)});
+}
+$("calPrev").onclick=()=>{calOffset--;renderStats()};
+$("calNext").onclick=()=>{if(calOffset<0){calOffset++;renderStats()}};
+$("goStats").onclick=()=>{calOffset=0;go("stats")};
 
 /* ---------- State ---------- */
 function toggleIn(store,k,id){const a=store[k]||[];store[k]=a.includes(id)?a.filter(x=>x!==id):[...a,id];if(!store[k].length)delete store[k];save();renderAll()}
 function save(){try{localStorage.setItem("upkeep",JSON.stringify(state))}catch(e){setStatus("Couldn't save. Is storage full or blocked?")}}
 const setStatus=t=>$("status").textContent=t;
-function renderAll(){renderHome();renderUpkeep();renderWork();renderExercise();renderWorkout()}
+function renderAll(){renderHome();renderUpkeep();renderWork();renderExercise();renderWorkout();renderStats()}
 
 /* ---------- Navigation (works with the phone's back button) ---------- */
-const SCREENS=["home","upkeep","exercise","work","workout"];
+const SCREENS=["home","upkeep","exercise","work","workout","stats"];
 function show(name){
   if(!SCREENS.includes(name))name="home";
   if(editing)setEditing(null);
@@ -752,7 +1022,7 @@ $("importFile").onchange=async e=>{
     if(!d||typeof d.days!=="object")throw 0;
     const merge=(dst,src)=>{for(const [k,v] of Object.entries(src||{}))dst[k]=[...new Set([...(dst[k]||[]),...v])]};
     merge(state.days,d.days); merge(state.weeks,d.weeks); merge(state.workDays,d.workDays);
-    Object.assign(state.workouts,d.workouts||{});if(d.level)state.level=d.level;
+    Object.assign(state.workouts,d.workouts||{});if(d.level)state.level=d.level;Object.assign(state.feedback,d.feedback||{});merge(state.todoDone,d.todoDone);
     if(d.lists)state.lists=normalizeLists(d.lists); // the backup's task lists replace the current ones
     save();renderAll();setStatus("Backup loaded and merged with what was here.");
   }catch(err){setStatus("That file isn't a Daily Upkeep backup. Pick a file made with Save backup.")}
@@ -769,7 +1039,7 @@ window.addEventListener("appinstalled",()=>{$("installBtn").hidden=true;setStatu
 function normalizeLists(l){const out=clone(DEFAULT_LISTS);for(const n of Object.keys(out))if(Array.isArray(l&&l[n]))out[n]=l[n];return out}
 try{
   const s=JSON.parse(localStorage.getItem("upkeep")||"null");
-  if(s&&s.days)state={days:s.days||{},weeks:s.weeks||{},workouts:s.workouts||{},workDays:s.workDays||{},lists:normalizeLists(s.lists),level:s.level||3};
+  if(s&&s.days)state={days:s.days||{},weeks:s.weeks||{},workouts:s.workouts||{},workDays:s.workDays||{},lists:normalizeLists(s.lists),level:s.level||3,feedback:s.feedback||{},todoDone:s.todoDone||{}};
 }catch(e){}
 buildLibrary();
 history.replaceState({s:null},"","#home");
