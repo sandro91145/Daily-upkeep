@@ -283,6 +283,52 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .msg.err{color:var(--danger)}
 .msg:empty{display:none}
 .who{font-weight:600;overflow-wrap:anywhere}
+/* Counter tasks */
+.counter{display:flex;align-items:center;gap:6px;flex:none}
+.counter button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.15rem;font-weight:700;cursor:pointer;line-height:1;padding:0}
+.counter b{font-family:var(--display);font-variant-numeric:tabular-nums;min-width:2.8em;text-align:center;font-size:.95rem}
+.task.done .counter button{background:var(--surface)}
+.cbar{height:5px;border-radius:3px;background:var(--line);margin-top:7px;overflow:hidden;max-width:180px}
+.cbar i{display:block;height:100%;background:var(--done);border-radius:3px}
+.edit-fields .row3{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+.edit-fields .row3 .field{width:84px;flex:none}
+/* Paused days */
+.pause-row{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pause-btn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px dashed var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;font-weight:600;font-size:.88rem;cursor:pointer}
+.pause-btn.on{border-style:solid;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.pause-btn svg{width:16px;height:16px;fill:currentColor;flex:none}
+.stripes{background:repeating-linear-gradient(135deg,var(--bg) 0 5px,var(--line) 5px 8px)!important}
+.legend i.stripes{background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 4px)!important;box-shadow:inset 0 0 0 1px var(--muted)}
+.col.paused .stack{background:repeating-linear-gradient(135deg,var(--bg) 0 5px,var(--line) 5px 8px)}
+.cal-grid button.paused{background:repeating-linear-gradient(135deg,var(--bg) 0 5px,var(--line) 5px 8px);color:var(--ink)}
+/* Check-in */
+.checkin{display:flex;flex-direction:column;gap:12px}
+.ci-head{display:flex;flex-direction:column;gap:2px}
+.ci-head p{margin:0;color:var(--muted);font-size:.88rem}
+.ci-row{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:center;gap:10px}
+.ci-row>span{font-weight:600;font-size:.92rem}
+.ci-ctl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.scale button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;height:40px;font-weight:700;cursor:pointer;padding:0;font-variant-numeric:tabular-nums}
+.scale button.sel{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.scale-ends{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.2rem;font-weight:700;cursor:pointer;padding:0}
+.stepper b{font-family:var(--display);font-size:1.2rem;min-width:4.2em;text-align:center;font-variant-numeric:tabular-nums}
+.ci-foot{display:flex;gap:8px;align-items:center}
+.ci-foot .field{flex:1;min-width:0}
+.ci-sum{display:flex;align-items:center;gap:12px}
+.ci-sum .txt{flex:1;min-width:0}
+.ci-sum .txt b{display:block;font-weight:600}
+.ci-sum .txt span{font-size:.88rem;color:var(--muted)}
+.ci-check{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.ci-check svg{width:16px;height:16px;stroke:currentColor;stroke-width:3;fill:none}
+.ci-grid{display:grid;grid-template-columns:58px repeat(14,minmax(0,1fr));gap:3px;align-items:end;font-size:.7rem;color:var(--muted)}
+.ci-grid .lbl{font-weight:600;align-self:center}
+.ci-grid .sl{height:60px;display:flex;align-items:flex-end;background:var(--bg);border-radius:4px;overflow:hidden}
+.ci-grid .sl i{display:block;width:100%;background:var(--work);border-radius:4px 4px 0 0}
+.ci-grid .cell{aspect-ratio:1;max-width:100%;border-radius:4px;background:var(--bg)}
+.ci-grid .dn{text-align:center;font-variant-numeric:tabular-nums;font-size:.62rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -319,6 +365,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       </div>
     </section>
 
+    <section class="card checkin" id="ciHome"></section>
+
     <section class="doors">
       <button class="door upkeep" id="goUpkeep">
         <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8.5 9.5l2 2 4-4M8.5 16h7"/></svg>
@@ -343,6 +391,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         <span><i style="background:var(--done)"></i><span id="legendGood"></span></span>
         <span><i style="background:color-mix(in srgb,var(--done) 45%,var(--line))"></i><span data-t="legend_some"></span></span>
         <span><i style="background:var(--exercise);border-radius:50%"></i><span data-t="legend_wo"></span></span>
+        <span id="legendPaused" hidden><i class="stripes"></i><span data-t="legend_paused"></span></span>
       </div>
     </section>
 
@@ -370,8 +419,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         </svg>
         <div><div class="streak" id="streakText"></div><p id="summaryText"></p></div>
       </div>
+      <div class="pause-row"><button type="button" class="pause-btn" id="pauseBtn"><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span id="pauseTxt"></span></button><p class="msg" id="pauseNote" hidden></p></div>
       <section class="group"><h2 data-t="every_day"></h2><ul class="tasks" id="daily"></ul></section>
       <section class="group"><h2 id="weekTitle"></h2><ul class="tasks" id="weekly"></ul></section>
+      <section class="card checkin" id="ciUpkeep"></section>
       <p class="tip" data-t="tip_upkeep"></p>
     </div>
     <div id="upkeepEdit" class="screen" hidden>
@@ -441,8 +492,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         <span><i style="background:var(--done)"></i><span id="calGood"></span></span>
         <span><i style="background:color-mix(in srgb,var(--done) 40%,var(--bg))"></i><span data-t="legend_some"></span></span>
         <span><i style="background:var(--exercise);border-radius:50%"></i><span data-t="legend_wo"></span></span>
+        <span><i class="stripes"></i><span data-t="legend_paused"></span></span>
       </div>
       <p class="lib-intro" data-t="cal_tip"></p>
+    </section>
+    <section class="card stack-card">
+      <h2 data-t="ci_stats_title"></h2>
+      <div id="ciChart"></div>
+      <div class="chips" id="ciChips"></div>
+      <p class="msg" id="ciInsight"></p>
     </section>
     <section class="card stack-card">
       <h2 id="ratesTitle"></h2>
@@ -582,7 +640,15 @@ en:{
   err_generic:m=>`Something went wrong: ${m}`,err_db:"Signed in, but the sync table isn't ready. Run the SQL step in Supabase again.",expired:"Your session expired. Sign in again.",
   signed_out:"Signed out. Your data stays on this device.",first_sync:"Signed in. This device is now in sync with your account.",
   backup_h:"Backup",backup_intro:"Saves everything to a file you can keep or move to another device.",save_backup:"Save backup",load_backup:"Load backup",
-  backup_saved:"Backup saved to your downloads.",backup_loaded:"Backup loaded and merged with what was here.",backup_bad:"That file isn't a Daily Upkeep backup. Pick a file made with Save backup."
+  backup_saved:"Backup saved to your downloads.",backup_loaded:"Backup loaded and merged with what was here.",backup_bad:"That file isn't a Daily Upkeep backup. Pick a file made with Save backup.",
+  target_day:"Times per day",target_week:"Times per week",one_less:"One less",one_more:"One more",
+  pause_day:"Pause this day (sick or holiday)",resume_day:"Resume this day",paused_note:"Paused day. Your streak is protected and nothing counts against you.",legend_paused:"Paused",chart_paused:", paused",
+  ci_title_today:"Today's check-in",ci_title_day:d=>`Check-in · ${d}`,ci_sub:"How are you? Takes 10 seconds.",ci_sleep:"Sleep",ci_energy:"Energy",ci_mood:"Mood",
+  ci_low:"low",ci_high:"high",ci_bad:"bad",ci_great:"great",ci_note:"Note (optional)",ci_done:"Done",ci_edit:"Edit",ci_hours:h=>`${h} h`,ci_less:"Less sleep",ci_more:"More sleep",
+  ci_summary:(s,e,m)=>`Sleep ${s} · Energy ${e}/5 · Mood ${m}/5`,
+  ci_stats_title:"Check-in, last 14 days",ci_avg_sleep:v=>`Average sleep: ${v} h`,ci_avg_energy:v=>`Average energy: ${v}/5`,ci_avg_mood:v=>`Average mood: ${v}/5`,
+  ci_none:"No check-ins yet. Fill one in on the home screen.",ci_insight:(a,b)=>`After 7+ hours of sleep you did ${a} daily tasks on average, versus ${b} after less sleep.`,
+  ci_insight_need:"After a few more check-ins you'll see how sleep affects your days."
 },
 pt:{
   settings:"Definições",progress:"Progresso",greet_late:"Ainda acordado?",greet_morning:"Bom dia",greet_afternoon:"Boa tarde",greet_evening:"Boa noite",
@@ -638,7 +704,15 @@ pt:{
   err_generic:m=>`Algo correu mal: ${m}`,err_db:"Sessão iniciada, mas a tabela de sincronização não está pronta. Corre outra vez o passo do SQL no Supabase.",expired:"A sessão expirou. Entra outra vez.",
   signed_out:"Sessão terminada. Os teus dados ficam neste dispositivo.",first_sync:"Sessão iniciada. Este dispositivo está sincronizado com a tua conta.",
   backup_h:"Cópia de segurança",backup_intro:"Guarda tudo num ficheiro que podes manter ou passar para outro dispositivo.",save_backup:"Guardar cópia",load_backup:"Carregar cópia",
-  backup_saved:"Cópia guardada nas transferências.",backup_loaded:"Cópia carregada e juntada ao que já estava aqui.",backup_bad:"Esse ficheiro não é uma cópia do Daily Upkeep. Escolhe um ficheiro criado com Guardar cópia."
+  backup_saved:"Cópia guardada nas transferências.",backup_loaded:"Cópia carregada e juntada ao que já estava aqui.",backup_bad:"Esse ficheiro não é uma cópia do Daily Upkeep. Escolhe um ficheiro criado com Guardar cópia.",
+  target_day:"Vezes por dia",target_week:"Vezes por semana",one_less:"Menos um",one_more:"Mais um",
+  pause_day:"Pausar este dia (doente ou férias)",resume_day:"Retomar este dia",paused_note:"Dia em pausa. A tua sequência está protegida e nada conta contra ti.",legend_paused:"Em pausa",chart_paused:", em pausa",
+  ci_title_today:"Check-in de hoje",ci_title_day:d=>`Check-in · ${d}`,ci_sub:"Como estás? Demora 10 segundos.",ci_sleep:"Sono",ci_energy:"Energia",ci_mood:"Humor",
+  ci_low:"baixa",ci_high:"alta",ci_bad:"mau",ci_great:"ótimo",ci_note:"Nota (opcional)",ci_done:"Concluído",ci_edit:"Editar",ci_hours:h=>`${h} h`,ci_less:"Menos sono",ci_more:"Mais sono",
+  ci_summary:(s,e,m)=>`Sono ${s} · Energia ${e}/5 · Humor ${m}/5`,
+  ci_stats_title:"Check-in, últimos 14 dias",ci_avg_sleep:v=>`Sono médio: ${v} h`,ci_avg_energy:v=>`Energia média: ${v}/5`,ci_avg_mood:v=>`Humor médio: ${v}/5`,
+  ci_none:"Ainda sem check-ins. Preenche um no ecrã inicial.",ci_insight:(a,b)=>`Depois de dormires 7 h ou mais fizeste em média ${a} tarefas diárias, contra ${b} quando dormiste menos.`,
+  ci_insight_need:"Com mais alguns check-ins vais ver como o sono afeta os teus dias."
 }};
 
 /* Default tasks: stored once, shown in the current language until you rename them */
@@ -829,7 +903,7 @@ function setLang(l){if(!T[l]||l===lang)return;lang=l;lsSet("upkeep-lang",l);appl
 document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 
 /* ================= State ================= */
-let state={days:{},weeks:{},workouts:{},workDays:{},lists:clone(DEFAULT_LISTS),level:3,feedback:{},todoDone:{},meta:{}};
+let state={days:{},weeks:{},workouts:{},workDays:{},lists:clone(DEFAULT_LISTS),level:3,feedback:{},todoDone:{},counts:{},paused:{},checkins:{},meta:{}};
 let viewDate=todayNoon();
 let editing=null;
 
@@ -848,8 +922,10 @@ const weeklyDone=w=>L().weekly.filter(t=>(state.weeks[w]||[]).includes(t.id)).le
 const workDone=k=>L().workDaily.filter(t=>(state.workDays[k]||[]).includes(t.id)).length;
 const goodN=()=>Math.max(1,Math.ceil(L().daily.length*5/7));
 
-function taskStreak(id){let d=todayNoon(),n=0;if(!doneOn(key(d)).includes(id))d=addDays(d,-1);while(doneOn(key(d)).includes(id)){n++;d=addDays(d,-1)}return n}
-function goodStreak(){if(!L().daily.length)return 0;let d=todayNoon(),n=0;if(dailyDone(key(d))<goodN())d=addDays(d,-1);while(dailyDone(key(d))>=goodN()){n++;d=addDays(d,-1)}return n}
+const isPaused=k=>!!(state.paused&&state.paused[k]);
+function streakOf(ok){let d=todayNoon(),n=0,guard=0;const k0=key(d);if(!ok(k0)&&!isPaused(k0))d=addDays(d,-1);while(guard++<4000){const k=key(d);if(ok(k))n++;else if(!isPaused(k))break;d=addDays(d,-1)}return n}
+function taskStreak(id){return streakOf(k=>doneOn(k).includes(id))}
+function goodStreak(){if(!L().daily.length)return 0;return streakOf(k=>dailyDone(k)>=goodN())}
 function bar(id,fill,a,b){$(id).textContent=`${a} / ${b}`;$(fill).style.width=(b?Math.min(a/b,1)*100:0)+"%"}
 
 /* ================= Home ================= */
@@ -858,15 +934,16 @@ function renderHome(){
   const h=now.getHours();
   $("greeting").textContent=tr(h<5?"greet_late":h<12?"greet_morning":h<19?"greet_afternoon":"greet_evening");
   $("homeDate").textContent=fmtLong(t);
-  const mon=monday(t); let ex=0, good=0;
+  const mon=monday(t); let ex=0, good=0, anyPaused=false;
   for(let i=0;i<7;i++)if(state.workouts[key(addDays(mon,i))])ex++;
   const chart=$("chart"); chart.replaceChildren();
   for(let i=6;i>=0;i--){
     const d=addDays(t,-i), k=key(d), c=dailyDone(k), w=!!state.workouts[k];
     if(nD&&c>=goodN())good++;
     const col=document.createElement("div");
-    col.className="col"+(nD&&c>=goodN()?" good":"")+(k===tk?" today":"");
-    col.title=`${cap(d.toLocaleDateString(locale(),{weekday:"long"}))}: ${c}/${nD}${w?tr("chart_wo"):""}`;
+    col.className="col"+(nD&&c>=goodN()?" good":"")+(k===tk?" today":"")+(isPaused(k)?" paused":"");
+    if(isPaused(k))anyPaused=true;
+    col.title=`${cap(d.toLocaleDateString(locale(),{weekday:"long"}))}: ${c}/${nD}${w?tr("chart_wo"):""}${isPaused(k)?tr("chart_paused"):""}`;
     col.innerHTML=`<div class="stack"><div class="fill" style="height:${nD?c/nD*100:0}%"></div></div><div class="dot${w?" on":""}"></div><div class="day"></div>`;
     col.querySelector(".day").textContent=wdShort(d);
     chart.appendChild(col);
@@ -876,6 +953,8 @@ function renderHome(){
   bar("bEx","fEx",ex,WORKOUT_GOAL); bar("bWork","fWork",wdc,wd);
   $("goodCount").textContent=tr("good_days",good);
   $("legendGood").textContent=tr("legend_good",goodN());
+  $("legendPaused").hidden=!anyPaused;
+  renderCheckin("ciHome",tk);
   const left=nD-dc;
   $("doorUpkeep").textContent=!nD?tr("door_up_none"):left===0?tr("door_up_done"):tr("door_up_left",left);
   $("doorExercise").textContent=state.workouts[tk]?tr("door_ex_done"):ex>=WORKOUT_GOAL?tr("door_ex_goal"):tr("door_ex_left",WORKOUT_GOAL-ex);
@@ -911,9 +990,14 @@ function renderUpkeep(){
   const gs=goodStreak();
   $("streakText").textContent=gs>0?tr("streak",gs):tr("streak_start");
   $("summaryText").textContent=!nD?tr("sum_none"):count>=g?(count===nD?tr("sum_all"):tr("sum_good")):tr("sum_more",g-count,g,nD);
+  const pz=isPaused(k);
+  $("pauseBtn").classList.toggle("on",pz);$("pauseBtn").setAttribute("aria-pressed",pz);
+  $("pauseTxt").textContent=pz?tr("resume_day"):tr("pause_day");
+  $("pauseNote").hidden=!pz;$("pauseNote").textContent=tr("paused_note");
   const ul=$("daily");ul.replaceChildren();
   if(!nD)ul.appendChild(emptyEl(tr("empty_daily")));
   L().daily.forEach(t=>{
+    if(isCounter(t)){ul.appendChild(counterRow(t,k,state.days));return}
     const s=taskStreak(t.id), chip=s>=2?`<span class="chip${s>=7?" hot":""}">${tr("chip_days",s)}</span>`:"";
     const li=taskEl(t,done.includes(t.id),chip,true); bindToggle(li,()=>toggleIn(state.days,k,t.id)); ul.appendChild(li);
   });
@@ -921,7 +1005,105 @@ function renderUpkeep(){
   $("weekTitle").textContent=`${isoWeek(todayNoon())===wk?tr("this_week"):tr("week_n",+wk.split("-W")[1])} · ${weeklyDone(wk)}/${L().weekly.length}`;
   const wl=$("weekly");wl.replaceChildren();
   if(!L().weekly.length)wl.appendChild(emptyEl(tr("empty_weekly")));
-  L().weekly.forEach(t=>{const li=taskEl(t,wdone.includes(t.id),"",true); bindToggle(li,()=>toggleIn(state.weeks,wk,t.id)); wl.appendChild(li)});
+  L().weekly.forEach(t=>{if(isCounter(t)){wl.appendChild(counterRow(t,wk,state.weeks));return}const li=taskEl(t,wdone.includes(t.id),"",true); bindToggle(li,()=>toggleIn(state.weeks,wk,t.id)); wl.appendChild(li)});
+  renderCheckin("ciUpkeep",k);
+}
+$("pauseBtn").onclick=()=>{const k=key(viewDate);if(isPaused(k))delete state.paused[k];else state.paused[k]=true;save();renderAll()};
+
+/* ================= Counter tasks ================= */
+const isCounter=t=>Number(t.target)>=2;
+const countOf=(k,id)=>((state.counts[k]||{})[id])||0;
+function bump(store,k,t,delta){
+  const c={...(state.counts[k]||{})},was=(store[k]||[]).includes(t.id),base=c[t.id]||(was?Number(t.target):0),n=Math.max(0,Math.min(99,base+delta));
+  if(n)c[t.id]=n;else delete c[t.id];
+  if(Object.keys(c).length)state.counts[k]=c;else delete state.counts[k];
+  const arr=(store[k]||[]).filter(x=>x!==t.id);if(n>=Number(t.target))arr.push(t.id);
+  if(arr.length)store[k]=arr;else delete store[k];
+  save();renderAll();
+}
+function counterRow(t,k,store){
+  const tg=Number(t.target),done=(store[k]||[]).includes(t.id),n=countOf(k,t.id)||(done?tg:0);
+  const li=taskEl(t,done,"",true);
+  const bar=document.createElement("div");bar.className="cbar";bar.innerHTML=`<i style="width:${Math.min(100,n/tg*100)}%"></i>`;
+  li.querySelector(".txt").appendChild(bar);
+  const ctl=document.createElement("div");ctl.className="counter";
+  const minus=document.createElement("button");minus.type="button";minus.textContent="−";minus.setAttribute("aria-label",tr("one_less"));minus.disabled=n===0;
+  const val=document.createElement("b");val.textContent=`${n}/${tg}`;
+  const plus=document.createElement("button");plus.type="button";plus.textContent="+";plus.setAttribute("aria-label",tr("one_more"));
+  minus.onclick=e=>{e.stopPropagation();bump(store,k,t,-1)};plus.onclick=e=>{e.stopPropagation();bump(store,k,t,1)};
+  minus.onkeydown=plus.onkeydown=e=>e.stopPropagation();
+  ctl.append(minus,val,plus);li.appendChild(ctl);
+  li.setAttribute("role","button");li.removeAttribute("aria-checked");
+  bindToggle(li,()=>bump(store,k,t,1));
+  return li;
+}
+
+/* ================= Daily check-in ================= */
+const ciOpen={};
+const ciRec=k=>(state.checkins&&state.checkins[k])||{};
+const ciComplete=r=>r.sleep!=null&&!!r.energy&&!!r.mood;
+const fmtNum=v=>Number(v).toLocaleString(locale(),{maximumFractionDigits:1});
+const fmtShort=k=>parseKey(k).toLocaleDateString(locale(),{day:"numeric",month:"short"});
+function setCi(k,patch,rerender=true){
+  const r={...ciRec(k),...patch};Object.keys(r).forEach(x=>{if(r[x]===""||r[x]==null)delete r[x]});
+  if(Object.keys(r).length)state.checkins[k]=r;else delete state.checkins[k];
+  save();if(rerender)renderAll();
+}
+function scaleEl(k,field,lo,hi,id){
+  const wrap=document.createElement("div");wrap.className="ci-ctl";
+  const sc=document.createElement("div");sc.className="scale";const cur=ciRec(k)[field];
+  for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.textContent=i;b.setAttribute("aria-pressed",cur===i);if(cur===i)b.className="sel";
+    b.setAttribute("aria-label",`${tr("ci_"+field)} ${i}/5`);b.onclick=()=>{ciOpen[id]=true;setCi(k,{[field]:cur===i?null:i})};sc.appendChild(b)}
+  const ends=document.createElement("div");ends.className="scale-ends";ends.innerHTML="<span></span><span></span>";ends.firstChild.textContent=tr(lo);ends.lastChild.textContent=tr(hi);
+  wrap.append(sc,ends);return wrap;
+}
+function ciRow(label,ctl){const r=document.createElement("div");r.className="ci-row";const l=document.createElement("span");l.textContent=tr(label);r.append(l,ctl);return r}
+function renderCheckin(cid,k){
+  const box=$(cid);if(!box)return;
+  const r=ciRec(k),isToday=k===key(todayNoon()),id=cid+"|"+k;
+  if(document.activeElement&&box.contains(document.activeElement)&&document.activeElement.tagName==="INPUT")return;
+  box.replaceChildren();
+  const title=isToday?tr("ci_title_today"):tr("ci_title_day",fmtShort(k));
+  if(ciComplete(r)&&!ciOpen[id]){
+    const sum=document.createElement("div");sum.className="ci-sum";
+    sum.innerHTML=`<span class="ci-check">${check}</span><div class="txt"><b></b><span></span></div>`;
+    sum.querySelector("b").textContent=title;
+    sum.querySelector(".txt span").textContent=tr("ci_summary",tr("ci_hours",fmtNum(r.sleep)),r.energy,r.mood)+(r.note?` · ${r.note}`:"");
+    const ed=document.createElement("button");ed.type="button";ed.className="link-btn";ed.textContent=tr("ci_edit");ed.onclick=()=>{ciOpen[id]=true;renderAll()};
+    sum.appendChild(ed);box.appendChild(sum);return;
+  }
+  const head=document.createElement("div");head.className="ci-head";head.innerHTML="<h2></h2><p></p>";head.firstChild.textContent=title;head.lastChild.textContent=tr("ci_sub");
+  const st=document.createElement("div");st.className="stepper";
+  const m=document.createElement("button");m.type="button";m.textContent="−";m.setAttribute("aria-label",tr("ci_less"));
+  const v=document.createElement("b");v.textContent=r.sleep!=null?tr("ci_hours",fmtNum(r.sleep)):"— h";
+  const p=document.createElement("button");p.type="button";p.textContent="+";p.setAttribute("aria-label",tr("ci_more"));
+  m.onclick=()=>{ciOpen[id]=true;setCi(k,{sleep:Math.max(0,(r.sleep!=null?r.sleep:7.5)-.5)})};
+  p.onclick=()=>{ciOpen[id]=true;setCi(k,{sleep:Math.min(14,(r.sleep!=null?r.sleep:6.5)+.5)})};
+  st.append(m,v,p);
+  const foot=document.createElement("div");foot.className="ci-foot";
+  const note=document.createElement("input");note.className="field";note.id=cid+"Note";note.placeholder=tr("ci_note");note.setAttribute("aria-label",tr("ci_note"));note.value=r.note||"";note.maxLength=140;
+  note.oninput=()=>{ciOpen[id]=true;setCi(k,{note:note.value},false)};
+  const done=document.createElement("button");done.type="button";done.className="btn primary";done.textContent=tr("ci_done");done.disabled=!ciComplete(r);
+  done.onclick=()=>{ciOpen[id]=false;renderAll()};
+  foot.append(note,done);
+  box.append(head,ciRow("ci_sleep",st),ciRow("ci_energy",scaleEl(k,"energy","ci_low","ci_high",id)),ciRow("ci_mood",scaleEl(k,"mood","ci_bad","ci_great",id)),foot);
+}
+function renderCiStats(){
+  const t=todayNoon(),days=[...Array(14)].map((_,i)=>addDays(t,i-13)),recs=days.map(d=>ciRec(key(d)));
+  const chart=$("ciChart"),chips=$("ciChips");chart.replaceChildren();chips.replaceChildren();
+  if(!recs.some(r=>Object.keys(r).length)){chart.appendChild(emptyEl(tr("ci_none")));$("ciInsight").textContent="";return}
+  const g=document.createElement("div");g.className="ci-grid";
+  const lbl=x=>{const s=document.createElement("span");s.className="lbl";s.textContent=tr(x);return s};
+  g.appendChild(lbl("ci_sleep"));recs.forEach((r,i)=>{const c=document.createElement("div");c.className="sl";c.title=`${fmtShort(key(days[i]))}: ${r.sleep!=null?tr("ci_hours",fmtNum(r.sleep)):"—"}`;if(r.sleep!=null)c.innerHTML=`<i style="height:${Math.min(100,r.sleep/10*100)}%"></i>`;g.appendChild(c)});
+  [["ci_energy","energy","var(--accent)"],["ci_mood","mood","var(--done)"]].forEach(([l,f,col])=>{g.appendChild(lbl(l));recs.forEach((r,i)=>{const c=document.createElement("div");c.className="cell";c.title=`${fmtShort(key(days[i]))}: ${r[f]?r[f]+"/5":"—"}`;if(r[f])c.style.background=`color-mix(in srgb,${col} ${20+r[f]*16}%,var(--bg))`;g.appendChild(c)})});
+  g.appendChild(document.createElement("span"));days.forEach(d=>{const s=document.createElement("span");s.className="dn";s.textContent=d.getDate();g.appendChild(s)});
+  chart.appendChild(g);
+  const avg=f=>{const v=recs.map(r=>r[f]).filter(x=>x!=null);return v.length?fmtNum(v.reduce((a,b)=>a+b,0)/v.length):null};
+  [["ci_avg_sleep",avg("sleep")],["ci_avg_energy",avg("energy")],["ci_avg_mood",avg("mood")]].forEach(([k2,v])=>{if(v==null)return;const sp=document.createElement("span");sp.textContent=tr(k2,v);chips.appendChild(sp)});
+  const hi=[],lo=[];
+  for(let i=0;i<30;i++){const k2=key(addDays(t,-i)),r=ciRec(k2);if(r.sleep==null||isPaused(k2)||!L().daily.length)continue;(r.sleep>=7?hi:lo).push(dailyDone(k2))}
+  const mean=a=>fmtNum(a.reduce((x,y)=>x+y,0)/a.length);
+  $("ciInsight").textContent=hi.length>=3&&lo.length>=3?tr("ci_insight",mean(hi),mean(lo)):tr("ci_insight_need");
 }
 
 /* ================= Work ================= */
@@ -961,6 +1143,13 @@ function renderEditor(ulId,listName,opts){
     if(opts.area)row2.appendChild(field("e-area","area","area"));
     row2.appendChild(field("","hint","note"));
     f.append(name,row2);
+    if(opts.counter){
+      const r3=document.createElement("label");r3.className="row3";
+      const sp=document.createElement("span");sp.textContent=tr(opts.counter==="week"?"target_week":"target_day");
+      const num=document.createElement("input");num.type="number";num.min="1";num.max="99";num.inputMode="numeric";num.className="field";num.placeholder="1";num.value=isCounter(t)?t.target:"";
+      num.oninput=()=>{const v=parseInt(num.value,10);if(v>=2)t.target=Math.min(99,v);else delete t.target;save()};
+      r3.append(sp,num);f.appendChild(r3);
+    }
     const act=document.createElement("div");act.className="edit-actions";
     const mkb=(s,label,cls)=>{const b=document.createElement("button");b.type="button";b.className="icon-btn"+(cls?" "+cls:"");b.textContent=s;b.setAttribute("aria-label",tr(label));return b};
     const up=mkb("↑","move_up"),down=mkb("↓","move_down"),del=mkb("✕","del","del");
@@ -987,7 +1176,7 @@ function setEditing(screen){
   applyStatic();
   $("upkeepView").hidden=editing==="upkeep"; $("upkeepEdit").hidden=editing!=="upkeep";
   $("workView").hidden=editing==="work"; $("workEdit").hidden=editing!=="work";
-  if(editing==="upkeep"){renderEditor("edDaily","daily",{area:true});renderEditor("edWeekly","weekly",{area:true})}
+  if(editing==="upkeep"){renderEditor("edDaily","daily",{area:true,counter:"day"});renderEditor("edWeekly","weekly",{area:true,counter:"week"})}
   if(editing==="work"){renderEditor("edWorkDaily","workDaily",{});renderEditor("edWorkTodo","workTodo",{})}
   if(!editing){
     ["daily","weekly","workDaily","workTodo"].forEach(n=>{L()[n]=L()[n].filter(t=>(t.name||"").trim())});
@@ -1192,7 +1381,7 @@ function rateRow(name,done,total,low,tag){
 function renderStats(){
   const t=todayNoon(), nD=L().daily.length, g=goodN();
   const first=parseKey(firstKey()), span=Math.round((t-first)/864e5)+1, N=Math.min(30,Math.max(1,span));
-  let best=0,run=0;for(let d=new Date(first);d<=t;d=addDays(d,1)){if(nD&&dailyDone(key(d))>=g){run++;if(run>best)best=run}else run=0}
+  let best=0,run=0;for(let d=new Date(first);d<=t;d=addDays(d,1)){const k=key(d);if(nD&&dailyDone(k)>=g){run++;if(run>best)best=run}else if(!isPaused(k))run=0}
   let wo30=0,todo30=0;const feelC={easy:0,right:0,hard:0},letterC={A:0,B:0,C:0,D:0,E:0};
   for(let i=0;i<30;i++){const k=key(addDays(t,-i)),w=state.workouts[k];if(w){wo30++;if(letterC[w]!==undefined)letterC[w]++}const f=state.feedback[k];if(f&&feelC[f.feel]!==undefined)feelC[f.feel]++;todo30+=(state.todoDone[k]||[]).length}
   const tiles=[[goodStreak(),"tile_streak"],[best,"tile_best"],[wo30,"tile_wo"],[todo30,"tile_todo"]];
@@ -1210,6 +1399,7 @@ function renderStats(){
     const day=new Date(month.getFullYear(),month.getMonth(),d,12),k=key(day),c=dailyDone(k),future=day>t;
     const b=document.createElement("button");b.type="button";b.textContent=d;
     b.dataset.l=!nD||c===0?0:c>=g?3:c/nD>=.4?2:1;
+    if(isPaused(k)&&!(nD&&c>=g))b.classList.add("paused");
     if(k===key(t))b.classList.add("today");if(future){b.classList.add("future");b.disabled=true}
     if(state.workouts[k]){const i=document.createElement("i");b.appendChild(i)}
     b.setAttribute("aria-label",tr("cal_aria",day.toLocaleDateString(locale(),{day:"numeric",month:"long"}),c,nD,!!state.workouts[k]));
@@ -1239,6 +1429,7 @@ function renderStats(){
     .forEach(x=>{const sp=document.createElement("span");sp.textContent=x;ch.appendChild(sp)});
 }
 $("calPrev").onclick=()=>{calOffset--;renderStats()};
+const _renderStats=renderStats;
 $("calNext").onclick=()=>{if(calOffset<0){calOffset++;renderStats()}};
 $("goStats").onclick=()=>{calOffset=0;go("stats")};
 
@@ -1246,13 +1437,13 @@ $("goStats").onclick=()=>{calOffset=0;go("stats")};
 function toggleIn(store,k,id){const a=store[k]||[];store[k]=a.includes(id)?a.filter(x=>x!==id):[...a,id];if(!store[k].length)delete store[k];save();renderAll()}
 function persist(){try{localStorage.setItem("upkeep",JSON.stringify(state))}catch(e){flash(tr("st_storage"))}}
 function save(){stamp();persist();scheduleSync()}
-function renderAll(){renderHome();renderUpkeep();renderWork();renderExercise();renderWorkout();renderStats();renderSettings()}
+function renderAll(){renderHome();renderUpkeep();renderWork();renderExercise();renderWorkout();renderStats();renderCiStats();renderSettings()}
 
 /* ================= Sync =================
    Every day, week and list is stamped with the time it last changed.
    When two devices meet, the newer version of each one wins, so ticking
    and un-ticking both carry over correctly. */
-const SYNC_FIELDS=["days","weeks","workouts","workDays","feedback","todoDone"];
+const SYNC_FIELDS=["days","weeks","workouts","workDays","feedback","todoDone","counts","paused","checkins"];
 const LIST_NAMES=["daily","weekly","workDaily","workTodo"];
 const syncReady=()=>!!(SUPA.url&&SUPA.key);
 function flatten(s){const f={};SYNC_FIELDS.forEach(n=>{for(const [k,v] of Object.entries(s[n]||{}))f[n+"|"+k]=v});LIST_NAMES.forEach(n=>{if(s.lists&&Array.isArray(s.lists[n]))f["lists|"+n]=s.lists[n]});if(s.level!=null)f.level=s.level;return f}
@@ -1260,7 +1451,7 @@ function strMap(f){const o={};for(const k in f)o[k]=JSON.stringify(f[k]);return 
 function sameMap(a,b){const ka=Object.keys(a),kb=Object.keys(b);if(ka.length!==kb.length)return false;return ka.every(k=>a[k]===b[k])}
 function unflatten(f){const s={lists:{}};SYNC_FIELDS.forEach(n=>s[n]={});for(const [p,v] of Object.entries(f)){const i=p.indexOf("|");if(i<0){if(p==="level")s.level=v;continue}const n=p.slice(0,i),k=p.slice(i+1);if(n==="lists")s.lists[k]=v;else if(s[n])s[n][k]=v}s.lists=normalizeLists(s.lists);if(s.level==null)s.level=3;return s}
 let lastFlat=null;
-function stamp(){const cur=strMap(flatten(state)),now=Date.now();state.meta=state.meta||{};if(lastFlat){new Set([...Object.keys(cur),...Object.keys(lastFlat)]).forEach(k=>{if(cur[k]!==lastFlat[k])state.meta[k]=now})}lastFlat=cur}
+function stamp(){const cur=strMap(flatten(state)),now=Date.now();state.meta=state.meta||{};if(lastFlat){new Set([...Object.keys(cur),...Object.keys(lastFlat)]).forEach(k=>{if(cur[k]!==lastFlat[k])state.meta[k]=Math.max(now,(state.meta[k]||0)+1)})}lastFlat=cur}
 function mergeStates(ls,lm,rs,rm){
   const lf=flatten(ls),rf=flatten(rs),flat={},meta={};
   new Set([...Object.keys(lf),...Object.keys(rf),...Object.keys(lm),...Object.keys(rm)]).forEach(k=>{
@@ -1271,7 +1462,7 @@ function mergeStates(ls,lm,rs,rm){
   });
   return {flat,meta};
 }
-const pick=s=>({days:s.days,weeks:s.weeks,workouts:s.workouts,workDays:s.workDays,feedback:s.feedback,todoDone:s.todoDone,lists:s.lists,level:s.level});
+const pick=s=>({days:s.days,weeks:s.weeks,workouts:s.workouts,workDays:s.workDays,feedback:s.feedback,todoDone:s.todoDone,counts:s.counts,paused:s.paused,checkins:s.checkins,lists:s.lists,level:s.level});
 
 let auth=null;try{auth=JSON.parse(lsGet("upkeep-auth")||"null")}catch(e){}
 let syncState="idle",syncing=false,syncAgain=false,syncTimer=null,lastSyncAt=Number(lsGet("upkeep-lastsync"))||0,flashTimer=null,flashText="";
@@ -1413,6 +1604,7 @@ $("importFile").onchange=async e=>{
     const merge=(dst,src)=>{for(const [k,v] of Object.entries(src||{}))if(Array.isArray(v))dst[k]=[...new Set([...(dst[k]||[]),...v])]};
     merge(state.days,d.days); merge(state.weeks,d.weeks); merge(state.workDays,d.workDays); merge(state.todoDone,d.todoDone);
     Object.assign(state.workouts,d.workouts||{});Object.assign(state.feedback,d.feedback||{});if(d.level)state.level=d.level;
+    Object.assign(state.paused,d.paused||{});Object.assign(state.checkins,d.checkins||{});for(const [k,v] of Object.entries(d.counts||{}))state.counts[k]={...(state.counts[k]||{}),...v};
     if(d.lists)state.lists=normalizeLists(d.lists);
     save();renderAll();$("backupMsg").textContent=tr("backup_loaded");
   }catch(err){$("backupMsg").textContent=tr("backup_bad")}
@@ -1429,7 +1621,7 @@ window.addEventListener("appinstalled",()=>{$("installBtn").hidden=true;flash(tr
 function normalizeLists(l){const out=clone(DEFAULT_LISTS);for(const n of Object.keys(out))if(Array.isArray(l&&l[n]))out[n]=l[n];return out}
 try{
   const s=JSON.parse(localStorage.getItem("upkeep")||"null");
-  if(s&&s.days)state={days:s.days||{},weeks:s.weeks||{},workouts:s.workouts||{},workDays:s.workDays||{},lists:normalizeLists(s.lists),level:s.level||3,feedback:s.feedback||{},todoDone:s.todoDone||{},meta:s.meta||{}};
+  if(s&&s.days)state={days:s.days||{},weeks:s.weeks||{},workouts:s.workouts||{},workDays:s.workDays||{},lists:normalizeLists(s.lists),level:s.level||3,feedback:s.feedback||{},todoDone:s.todoDone||{},counts:s.counts||{},paused:s.paused||{},checkins:s.checkins||{},meta:s.meta||{}};
 }catch(e){}
 lastFlat=strMap(flatten(state));
 applyStatic();
